@@ -20,7 +20,7 @@ aside{background:var(--soil);color:var(--sand);display:flex;flex-direction:colum
 #list{list-style:none;margin:0;padding:0;overflow-y:auto;flex:1}
 #list li{display:flex;align-items:flex-start}
 .item{flex:1;min-width:0;text-align:left;background:none;border:0;color:inherit;padding:8px;border-radius:8px}
-.item:hover,.del:hover{background:var(--soil2)}
+.item:hover,.del:hover,.item.on{background:var(--soil2)}
 .item b{font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .item span{display:block;font-size:.75rem;opacity:.6}
 .del{background:none;border:0;color:inherit;opacity:.6;padding:6px 9px;border-radius:8px;font-size:1.1rem}
@@ -32,6 +32,7 @@ aside{background:var(--soil);color:var(--sand);display:flex;flex-direction:colum
 main{display:flex;flex-direction:column;min-width:0;min-height:0}
 .top{display:none;align-items:center;gap:10px;padding:10px 14px;background:var(--soil);color:var(--sand)}
 .top button{background:none;border:1px solid #54443A;color:inherit;border-radius:8px;padding:6px 12px}
+.top strong{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 #feed{flex:1;overflow-y:auto;padding:28px 20px}
 .col{max-width:720px;margin:0 auto}
 .empty h2{font-family:Georgia,serif;font-size:1.5rem;margin:8px 0 4px}
@@ -73,20 +74,20 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
 <div class="app">
   <aside id="side">
     <div class="brand">PeatAI</div>
-    <div class="sub">Geçmiş sorular</div>
-    <button class="new" id="new" type="button">Yeni soru</button>
-    <input id="search" type="search" placeholder="Geçmişte ara…" aria-label="Geçmişte ara">
+    <div class="sub">Sohbetler</div>
+    <button class="new" id="new" type="button">Yeni sohbet</button>
+    <input id="search" type="search" placeholder="Sohbetlerde ara…" aria-label="Sohbetlerde ara">
     <ul id="list"></ul>
     <div class="foot">
       <button id="export" type="button">Dışa aktar</button>
-      <button id="clear" type="button">Geçmişi sil</button>
+      <button id="clear" type="button">Hepsini sil</button>
     </div>
-    <p class="priv">Geçmiş yalnızca bu cihazdaki tarayıcında saklanır.</p>
+    <p class="priv">Sohbetler yalnızca bu cihazdaki tarayıcında saklanır.</p>
   </aside>
   <div id="scrim"></div>
 
   <main>
-    <div class="top"><button id="menu" type="button">Geçmiş</button><strong>PeatAI</strong></div>
+    <div class="top"><button id="menu" type="button">Sohbetler</button><strong id="ttl">PeatAI</strong></div>
     <div id="feed" aria-live="polite"></div>
     <div class="comp">
       <form id="form">
@@ -101,44 +102,68 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
 </div>
 
 <script>
-const API="https://peatai-backend.onrender.com",KEY="peatai_history_v1";
+const API="https://peatai-backend.onrender.com",KEY="peatai_chats_v1";
 const $=id=>document.getElementById(id);
-const feed=$("feed"),list=$("list"),search=$("search"),form=$("form"),box=$("q"),sendBtn=$("send"),side=$("side"),scrim=$("scrim");
-let history=load(),busy=false;
+const feed=$("feed"),list=$("list"),search=$("search"),form=$("form"),box=$("q"),sendBtn=$("send"),side=$("side"),scrim=$("scrim"),ttl=$("ttl");
+function short(t){t=String(t).replace(/\s+/g," ").trim();return t.length>42?t.slice(0,40)+"…":t}
+let chats=load(),current=null,busy=false;
 fetch(API+"/health").catch(()=>{});
 
-function load(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return[]}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(history))}catch(e){document.querySelector(".priv").textContent="Tarayıcın kayıt tutmaya izin vermiyor (gizli sekmede olabilir). Geçmiş sayfa yenilenince kaybolur."}}
+function load(){
+  try{const c=JSON.parse(localStorage.getItem(KEY));if(Array.isArray(c))return c}catch(e){}
+  try{const old=JSON.parse(localStorage.getItem("peatai_history_v1"))||[];
+    return old.map(e=>({id:e.id,title:short(e.q),ts:e.ts,msgs:[e]}))}catch(e){return[]}
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(chats))}catch(e){document.querySelector(".priv").textContent="Tarayıcın kayıt tutmaya izin vermiyor (gizli sekmede olabilir). Sohbetler sayfa yenilenince kaybolur."}}
 const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 const fmt=t=>esc(t).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/^\s*[*-]\s+/gm,"• ");
 const when=ts=>new Date(ts).toLocaleString("tr-TR",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
+const cur=()=>chats.find(c=>c.id===current)||null;
 
 function srcHtml(s){
-  const ok=(s||[]).filter(x=>x.url&&x.url.indexOf("https://wikipeatia.org/")===0);
-  if(!ok.length)return '<div class="src">WikiPeatia\'da eşleşme bulunamadı; yanıt modelin genel bilgisine dayanıyor.</div>';
-  return '<div class="src"><b>Kaynaklar (WikiPeatia)</b><ul>'+ok.map(x=>'<li><a href="'+esc(x.url)+'" target="_blank" rel="noopener">'+esc(x.title)+'</a></li>').join("")+'</ul>Bu sayfaların arama özetleri bağlam olarak kullanıldı; yanıt Gemini ile üretildi.</div>';
+  const ok=(s||[]).filter(x=>x.url&&x.url.indexOf("https://")===0);
+  if(!ok.length)return '<div class="src">Kaynak bulunamadı; yanıt modelin genel bilgisine dayanıyor.</div>';
+  return '<div class="src"><b>Kaynaklar</b><ul>'+ok.map(x=>'<li><a href="'+esc(x.url)+'" target="_blank" rel="noopener">'+esc(x.title)+'</a></li>').join("")+'</ul>Bu sayfaların arama özetleri bağlam olarak kullanıldı; yanıt Gemini ile üretildi.</div>';
 }
 function entryHtml(e){
   return '<article class="entry"><div class="q">'+esc(e.q)+'</div><div class="a">'+fmt(e.a)+'</div>'+srcHtml(e.sources)+'<div class="meta">'+when(e.ts)+'</div></article>';
 }
 function showEmpty(){
-  feed.innerHTML='<div class="col empty" id="empty"><h2>Ne öğrenmek istersin?</h2><p>Bir soru yaz ya da örneklerden birine dokun.</p>'+
+  current=null;ttl.textContent="PeatAI";
+  feed.innerHTML='<div class="col empty" id="empty"><h2>Ne öğrenmek istersin?</h2><p>Bir soru yaz ya da örneklerden birine dokun. Her soru yeni bir sohbet başlatır.</p>'+
   ["Tiroid hormonu metabolizma için neden önemli?","Şeker ve meyve suyu hakkında Ray Peat ne diyor?","Progesteron ve östrojen dengesi nedir?","Çoklu doymamış yağlar neden sorun olabilir?"].map(t=>'<button class="chip" type="button">'+t+'</button>').join("")+'</div>';
+  renderList();
+}
+function showChat(c){
+  current=c.id;ttl.textContent=c.title;
+  feed.innerHTML='<div class="col">'+c.msgs.map(entryHtml).join("")+'</div>';
+  feed.scrollTop=feed.scrollHeight;renderList();
 }
 function col(){let c=feed.querySelector(".col");if(!c){feed.innerHTML='<div class="col"></div>';c=feed.firstChild}return c}
 
 function renderList(){
   const f=search.value.trim().toLocaleLowerCase("tr");
-  const items=history.slice().reverse().filter(e=>!f||(e.q+" "+e.a).toLocaleLowerCase("tr").includes(f));
-  if(!items.length){list.innerHTML='<li class="none">'+(history.length?"Eşleşen kayıt yok.":"Henüz kayıt yok. Sorduğun sorular burada saklanır.")+'</li>';return}
-  list.innerHTML=items.map(e=>'<li><button class="item" data-id="'+e.id+'"><b>'+esc(e.q)+'</b><span>'+when(e.ts)+'</span></button><button class="del" data-del="'+e.id+'" aria-label="Kaydı sil">×</button></li>').join("");
+  const items=chats.slice().sort((a,b)=>b.ts-a.ts).filter(c=>!f||(c.title+" "+c.msgs.map(m=>m.q+" "+m.a).join(" ")).toLocaleLowerCase("tr").includes(f));
+  if(!items.length){list.innerHTML='<li class="none">'+(chats.length?"Eşleşen sohbet yok.":"Henüz sohbet yok. İlk sorunla bir sohbet başlar.")+'</li>';return}
+  list.innerHTML=items.map(c=>'<li><button class="item'+(c.id===current?" on":"")+'" data-id="'+c.id+'"><b>'+esc(c.title)+'</b><span>'+when(c.ts)+'</span></button><button class="del" data-del="'+c.id+'" aria-label="Sohbeti sil">×</button></li>').join("");
 }
 function openSide(){side.classList.add("open");scrim.classList.add("on")}
 function closeSide(){side.classList.remove("open");scrim.classList.remove("on")}
 
+async function aiTitle(chat,m){
+  try{
+    const r=await fetch(API+"/title",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:m.q,answer:String(m.a).slice(0,400)})});
+    if(!r.ok)return;
+    const d=await r.json();
+    if(d.title){chat.title=d.title.slice(0,60);save();renderList();if(current===chat.id)ttl.textContent=chat.title}
+  }catch(e){}
+}
+
 async function ask(q){
   if(busy||!q.trim())return;
   busy=true;sendBtn.disabled=true;
+  const isNew=!cur();
+  const chat=cur()||{id:Date.now(),title:short(q),ts:Date.now(),msgs:[]};
   if($("empty"))feed.innerHTML="";
   const c=col();
   const art=document.createElement("article");art.className="entry";
@@ -149,20 +174,24 @@ async function ask(q){
   const t1=setTimeout(()=>{wait.querySelector(".hint").textContent="Sunucu uyanıyor; ilk soruda bu bir dakikaya kadar sürebilir."},8000);
   const ctrl=new AbortController(),t2=setTimeout(()=>ctrl.abort(),120000);
   try{
-    const r=await fetch(API+"/ask-peat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:q}),signal:ctrl.signal});
+    const hist=chat.msgs.slice(-3).map(e=>({q:e.q,a:String(e.a).slice(0,600)}));
+    const r=await fetch(API+"/ask-peat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:q,history:hist}),signal:ctrl.signal});
     if(!r.ok)throw new Error("HTTP "+r.status);
     const d=await r.json();
-    const e={id:Date.now(),q:q,a:d.answer_tr||"Boş yanıt geldi, soruyu farklı yazmayı dene.",sources:d.sources||[],ts:Date.now()};
-    history.push(e);save();renderList();
-    art.outerHTML=entryHtml(e);
-    c.lastElementChild.scrollIntoView({block:"nearest"});
+    const m={id:Date.now(),q:q,a:d.answer_tr||"Boş yanıt geldi, soruyu farklı yazmayı dene.",sources:d.sources||[],ts:Date.now()};
+    chat.msgs.push(m);chat.ts=Date.now();
+    if(isNew)chats.push(chat);
+    save();
+    if(art.isConnected){art.outerHTML=entryHtml(m);current=chat.id;ttl.textContent=chat.title;c.lastElementChild.scrollIntoView({block:"nearest"})}
+    renderList();
+    if(chat.msgs.length===1)aiTitle(chat,m);
   }catch(err){
     wait.remove();
-    let m="Cevap alınamadı. İnternet bağlantını kontrol edip tekrar dene.";
-    if(err.name==="AbortError")m="Sunucu zamanında yanıt vermedi. Bir dakika sonra tekrar dene.";
-    else if(String(err.message).includes("HTTP 5"))m="Sunucu şu an yanıt veremiyor. Biraz sonra tekrar dene.";
-    else if(String(err.message).includes("HTTP 4"))m="İstek kabul edilmedi ("+err.message+").";
-    art.insertAdjacentHTML("beforeend",'<div class="a err">'+esc(m)+'</div>');
+    let msg="Cevap alınamadı. İnternet bağlantını kontrol edip tekrar dene.";
+    if(err.name==="AbortError")msg="Sunucu zamanında yanıt vermedi. Bir dakika sonra tekrar dene.";
+    else if(String(err.message).includes("HTTP 5"))msg="Sunucu şu an yanıt veremiyor. Biraz sonra tekrar dene.";
+    else if(String(err.message).includes("HTTP 4"))msg="İstek kabul edilmedi ("+err.message+").";
+    art.insertAdjacentHTML("beforeend",'<div class="a err">'+esc(msg)+'</div>');
     const b=document.createElement("button");b.className="retry";b.type="button";b.textContent="Tekrar dene";
     b.onclick=()=>{art.remove();ask(q)};art.appendChild(b);
   }finally{
@@ -177,20 +206,25 @@ feed.addEventListener("click",ev=>{const c=ev.target.closest(".chip");if(c)ask(c
 search.addEventListener("input",renderList);
 list.addEventListener("click",ev=>{
   const d=ev.target.closest("[data-del]");
-  if(d){history=history.filter(e=>String(e.id)!==d.dataset.del);save();renderList();return}
+  if(d){
+    if(!confirm("Bu sohbet silinsin mi?"))return;
+    const id=Number(d.dataset.del);chats=chats.filter(c=>c.id!==id);save();
+    if(current===id)showEmpty();else renderList();
+    return;
+  }
   const i=ev.target.closest("[data-id]");
-  if(i){const e=history.find(x=>String(x.id)===i.dataset.id);if(e){feed.innerHTML='<div class="col">'+entryHtml(e)+'</div>';feed.scrollTop=0;closeSide()}}
+  if(i){const c=chats.find(x=>String(x.id)===i.dataset.id);if(c){showChat(c);closeSide()}}
 });
 $("new").onclick=()=>{showEmpty();closeSide();box.focus()};
 $("menu").onclick=openSide;scrim.onclick=closeSide;
-$("clear").onclick=()=>{if(history.length&&confirm("Tüm geçmiş silinsin mi? Bu geri alınamaz.")){history=[];save();renderList();showEmpty()}};
+$("clear").onclick=()=>{if(chats.length&&confirm("Tüm sohbetler silinsin mi? Bu geri alınamaz.")){chats=[];save();showEmpty()}};
 $("export").onclick=()=>{
-  if(!history.length){alert("Dışa aktarılacak kayıt yok.");return}
-  const t=history.map(e=>"Soru: "+e.q+"\n\nCevap: "+e.a+"\n\nKaynaklar: "+((e.sources||[]).map(s=>s.title+" ("+s.url+")").join("; ")||"yok")+"\nTarih: "+when(e.ts)).join("\n\n----------\n\n");
-  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"text/plain;charset=utf-8"}));a.download="peatai-gecmis.txt";a.click();
+  if(!chats.length){alert("Dışa aktarılacak sohbet yok.");return}
+  const t=chats.slice().sort((a,b)=>a.ts-b.ts).map(c=>"=== "+c.title+" ===\n\n"+c.msgs.map(e=>"Soru: "+e.q+"\n\nCevap: "+e.a+"\n\nKaynaklar: "+((e.sources||[]).map(s=>s.title+" ("+s.url+")").join("; ")||"yok")+"\nTarih: "+when(e.ts)).join("\n\n---\n\n")).join("\n\n##########\n\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"text/plain;charset=utf-8"}));a.download="peatai-sohbetler.txt";a.click();
 };
 renderList();
-if(history.length){feed.innerHTML='<div class="col">'+history.slice(-20).map(e=>entryHtml(e)).join("")+'</div>';feed.scrollTop=feed.scrollHeight}else showEmpty();
+if(chats.length)showChat(chats.slice().sort((a,b)=>b.ts-a.ts)[0]);else showEmpty();
 </script>
 </body>
 </html>
