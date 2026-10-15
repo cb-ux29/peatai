@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PeatAI Assistant</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .chat-container { width: 100%; max-width: 600px; height: 80vh; background: #1e293b; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .header { background: #334155; padding: 15px; font-weight: bold; font-size: 1.1rem; border-bottom: 1px solid #475569; display: flex; align-items: center; justify-content: space-between; }
+        .messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 10px 14px; border-radius: 8px; max-width: 80%; line-height: 1.5; white-space: pre-wrap; }
+        .user { background: #2563eb; align-self: flex-end; }
+        .bot { background: #334155; align-self: flex-start; }
+        .input-area { padding: 15px; background: #0f172a; display: flex; gap: 10px; }
+        input { flex: 1; padding: 12px; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: white; outline: none; }
+        button { padding: 12px 20px; border-radius: 6px; border: none; background: #2563eb; color: white; font-weight: bold; cursor: pointer; }
+        button:disabled { opacity: 0.5; }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="header">🌿 PeatAI - Bioenergetic Assistant</div>
+        <div class="messages" id="msgs">
+            <div class="msg bot">Merhaba! Dr. Ray Peat'in metabolizma ve biyokimya ilkeleri doğrultusunda sorularını yanıtlamaya hazırım.</div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="inp" placeholder="Bir soru sorun (ör: Tiroid ve CO2 ilişkisi)..." onkeypress="if(event.key==='Enter') send()">
+            <button onclick="send()" id="btn">Gönder</button>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = "https://peatai-backend.onrender.com";
+
+        async function send() {
+            const inp = document.getElementById('inp');
+            const btn = document.getElementById('btn');
+            const msgs = document.getElementById('msgs');
+            const q = inp.value.trim();
+            if (!q) return;
+
+            // Kullanıcı mesajı
+            msgs.innerHTML += `<div class="msg user">${q}</div>`;
+            inp.value = '';
+            btn.disabled = true;
+            msgs.scrollTop = msgs.scrollHeight;
+
+            // Bekleme mesajı
+            const loadingId = 'load-' + Date.now();
+            msgs.innerHTML += `<div class="msg bot" id="${loadingId}">WikiPeatia taranıyor ve yanıt üretiliyor...</div>`;
+            msgs.scrollTop = msgs.scrollHeight;
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/ask-peat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: q })
+                });
+                const data = await res.json();
+                document.getElementById(loadingId).innerText = data.answer_tr || "Bir yanıt alınamadı.";
+            } catch (e) {
+                document.getElementById(loadingId).innerText = "Hata oluştu. Lütfen tekrar deneyin.";
+            } finally {
+                btn.disabled = false;
+                msgs.scrollTop = msgs.scrollHeight;
+            }
+        }
+    </script>
+</body>
+</html>
