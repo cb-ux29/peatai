@@ -1,71 +1,171 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PeatAI Assistant</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .chat-container { width: 100%; max-width: 600px; height: 80vh; background: #1e293b; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .header { background: #334155; padding: 15px; font-weight: bold; font-size: 1.1rem; border-bottom: 1px solid #475569; display: flex; align-items: center; justify-content: space-between; }
-        .messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .msg { padding: 10px 14px; border-radius: 8px; max-width: 80%; line-height: 1.5; white-space: pre-wrap; }
-        .user { background: #2563eb; align-self: flex-end; }
-        .bot { background: #334155; align-self: flex-start; }
-        .input-area { padding: 15px; background: #0f172a; display: flex; gap: 10px; }
-        input { flex: 1; padding: 12px; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: white; outline: none; }
-        button { padding: 12px 20px; border-radius: 6px; border: none; background: #2563eb; color: white; font-weight: bold; cursor: pointer; }
-        button:disabled { opacity: 0.5; }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PeatAI · Ray Peat'e soru sor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF1EC; --surface:#FFFFFF; --ink:#1D2822; --muted:#5E6B63;
+  --line:#D3DAD2; --accent:#2F5D50; --accent-ink:#FFFFFF; --user:#E1EAE4; --err:#9B2C2C;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#141A17; --surface:#1B231F; --ink:#E6ECE7; --muted:#9AA79F;
+  --line:#2C3832; --accent:#6FB39F; --accent-ink:#0F1613; --user:#24302A; --err:#F09A9A;}
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Manrope",system-ui,sans-serif;font-size:16px;line-height:1.5;display:flex;flex-direction:column}
+.wrap{width:100%;max-width:720px;margin:0 auto;padding:0 16px}
+header{padding:20px 0 12px;border-bottom:1px solid var(--line)}
+header h1{margin:0;font-family:"Source Serif 4",Georgia,serif;font-size:1.6rem;font-weight:600}
+header p{margin:2px 0 0;color:var(--muted);font-size:.92rem}
+main{flex:1;overflow-y:auto;padding:20px 0}
+.empty h2{font-family:"Source Serif 4",Georgia,serif;font-weight:600;font-size:1.3rem;margin:12px 0 4px}
+.empty p{margin:0 0 16px;color:var(--muted)}
+.chips{display:flex;flex-direction:column;gap:8px}
+.chip{text-align:left;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer}
+.chip:hover{border-color:var(--accent)}
+.msg{margin:0 0 20px;display:flex;flex-direction:column}
+.msg.user{align-items:flex-end}
+.msg .who{font-size:.8rem;color:var(--muted);margin-bottom:4px}
+.msg.user .body{background:var(--user);padding:10px 14px;border-radius:14px 14px 4px 14px;max-width:85%}
+.msg.bot .body{font-family:"Source Serif 4",Georgia,serif;font-size:1.06rem;line-height:1.65;max-width:100%;white-space:pre-wrap;border-left:3px solid var(--accent);padding-left:14px}
+.msg.err .body{border-left-color:var(--err);color:var(--err);font-family:"Manrope",sans-serif;font-size:.98rem}
+.retry{margin-top:8px;align-self:flex-start;font:inherit;font-weight:600;color:var(--accent);background:none;border:1px solid var(--accent);border-radius:8px;padding:6px 12px;cursor:pointer}
+.dots span{display:inline-block;width:6px;height:6px;margin-right:4px;border-radius:50%;background:var(--accent);animation:b 1s infinite}
+.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,80%,100%{opacity:.25}40%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.dots span{animation:none}}
+.hint{font-size:.88rem;color:var(--muted);margin-top:6px;font-family:"Manrope",sans-serif}
+footer{border-top:1px solid var(--line);background:var(--bg);padding:12px 0 14px}
+form{display:flex;gap:8px;align-items:flex-end}
+textarea{flex:1;resize:none;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:11px 14px;max-height:140px;min-height:46px}
+textarea:focus,.chip:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.send{font:inherit;font-weight:700;background:var(--accent);color:var(--accent-ink);border:0;border-radius:12px;padding:0 20px;height:46px;cursor:pointer}
+.send:disabled{opacity:.5;cursor:not-allowed}
+.note{margin:8px 0 0;font-size:.78rem;color:var(--muted);text-align:center}
+</style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="header">🌿 PeatAI - Bioenergetic Assistant</div>
-        <div class="messages" id="msgs">
-            <div class="msg bot">Merhaba! Dr. Ray Peat'in metabolizma ve biyokimya ilkeleri doğrultusunda sorularını yanıtlamaya hazırım.</div>
-        </div>
-        <div class="input-area">
-            <input type="text" id="inp" placeholder="Bir soru sorun (ör: Tiroid ve CO2 ilişkisi)..." onkeypress="if(event.key==='Enter') send()">
-            <button onclick="send()" id="btn">Gönder</button>
-        </div>
+<div class="wrap"><header>
+  <h1>PeatAI</h1>
+  <p>Dr. Ray Peat'in bakış açısıyla Türkçe yanıtlar</p>
+</header></div>
+
+<main><div class="wrap" id="chat">
+  <div class="empty" id="empty">
+    <h2>Ne öğrenmek istersin?</h2>
+    <p>Bir soru yaz ya da aşağıdakilerden birine dokun.</p>
+    <div class="chips">
+      <button class="chip" type="button">Tiroid hormonu metabolizma için neden önemli?</button>
+      <button class="chip" type="button">Şeker ve meyve suyu hakkında Ray Peat ne diyor?</button>
+      <button class="chip" type="button">Progesteron ve östrojen dengesi nedir?</button>
+      <button class="chip" type="button">Çoklu doymamış yağlar neden sorun olabilir?</button>
     </div>
+  </div>
+</div></main>
 
-    <script>
-        const BACKEND_URL = "https://peatai-backend.onrender.com";
+<footer><div class="wrap">
+  <form id="form">
+    <textarea id="q" rows="1" placeholder="Sorunu buraya yaz…" aria-label="Sorun"></textarea>
+    <button class="send" id="send" type="submit">Gönder</button>
+  </form>
+  <p class="note">Yanıtlar yapay zekâ ile üretilir ve tıbbi tavsiye yerine geçmez.</p>
+</div></footer>
 
-        async function send() {
-            const inp = document.getElementById('inp');
-            const btn = document.getElementById('btn');
-            const msgs = document.getElementById('msgs');
-            const q = inp.value.trim();
-            if (!q) return;
+<script>
+const API_BASE = "https://peatai-backend.onrender.com";
+const chat = document.getElementById("chat");
+const empty = document.getElementById("empty");
+const form = document.getElementById("form");
+const box = document.getElementById("q");
+const sendBtn = document.getElementById("send");
+let busy = false;
 
-            // Kullanıcı mesajı
-            msgs.innerHTML += `<div class="msg user">${q}</div>`;
-            inp.value = '';
-            btn.disabled = true;
-            msgs.scrollTop = msgs.scrollHeight;
+// Sunucu uyuyorsa sayfa açılır açılmaz uyandır
+fetch(API_BASE + "/health").catch(() => {});
 
-            // Bekleme mesajı
-            const loadingId = 'load-' + Date.now();
-            msgs.innerHTML += `<div class="msg bot" id="${loadingId}">WikiPeatia taranıyor ve yanıt üretiliyor...</div>`;
-            msgs.scrollTop = msgs.scrollHeight;
+function escapeHtml(s){
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+function format(text){
+  return escapeHtml(text)
+    .replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")
+    .replace(/^\s*[*-]\s+/gm,"• ");
+}
+function scrollDown(){ const m=document.querySelector("main"); m.scrollTop=m.scrollHeight; }
 
-            try {
-                const res = await fetch(`${BACKEND_URL}/ask-peat`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ question: q })
-                });
-                const data = await res.json();
-                document.getElementById(loadingId).innerText = data.answer_tr || "Bir yanıt alınamadı.";
-            } catch (e) {
-                document.getElementById(loadingId).innerText = "Hata oluştu. Lütfen tekrar deneyin.";
-            } finally {
-                btn.disabled = false;
-                msgs.scrollTop = msgs.scrollHeight;
-            }
-        }
-    </script>
+function addMsg(kind, html, who){
+  const d = document.createElement("div");
+  d.className = "msg " + kind;
+  d.innerHTML = '<div class="who">'+who+'</div><div class="body">'+html+'</div>';
+  chat.appendChild(d);
+  scrollDown();
+  return d;
+}
+
+async function ask(question){
+  if (busy || !question.trim()) return;
+  busy = true; sendBtn.disabled = true;
+  if (empty) empty.remove();
+  addMsg("user", escapeHtml(question), "Sen");
+
+  const wait = addMsg("bot", '<span class="dots"><span></span><span></span><span></span></span><div class="hint" id="hint">Cevap hazırlanıyor…</div>', "PeatAI");
+  const t1 = setTimeout(() => {
+    const h = wait.querySelector("#hint");
+    if (h) h.textContent = "Sunucu uyanıyor. İlk soruda bu bir dakikaya kadar sürebilir, lütfen bekle.";
+  }, 8000);
+
+  const ctrl = new AbortController();
+  const t2 = setTimeout(() => ctrl.abort(), 120000);
+
+  try {
+    const res = await fetch(API_BASE + "/ask-peat", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({question: question}),
+      signal: ctrl.signal
+    });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    wait.remove();
+    addMsg("bot", format(data.answer_tr || "Boş yanıt geldi, soruyu farklı yazmayı dene."), "PeatAI");
+  } catch (e) {
+    wait.remove();
+    let msg = "Cevap alınamadı. İnternet bağlantını kontrol edip tekrar dene.";
+    if (e.name === "AbortError") msg = "Sunucu zamanında yanıt vermedi. Bir dakika sonra tekrar dene.";
+    else if (String(e.message).includes("HTTP 5")) msg = "Sunucu şu an yanıt veremiyor. Biraz sonra tekrar dene.";
+    else if (String(e.message).includes("HTTP 4")) msg = "İstek sunucuya ulaştı ama kabul edilmedi (" + e.message + ").";
+    const err = addMsg("bot err", escapeHtml(msg), "PeatAI");
+    const b = document.createElement("button");
+    b.className = "retry"; b.type = "button"; b.textContent = "Tekrar dene";
+    b.onclick = () => { err.remove(); busy = false; ask(question); };
+    err.appendChild(b);
+  } finally {
+    clearTimeout(t1); clearTimeout(t2);
+    busy = false; sendBtn.disabled = false; box.focus();
+  }
+}
+
+form.addEventListener("submit", ev => {
+  ev.preventDefault();
+  const v = box.value.trim();
+  if (!v) return;
+  box.value = ""; box.style.height = "auto";
+  ask(v);
+});
+box.addEventListener("keydown", ev => {
+  if (ev.key === "Enter" && !ev.shiftKey){ ev.preventDefault(); form.requestSubmit(); }
+});
+box.addEventListener("input", () => {
+  box.style.height = "auto";
+  box.style.height = Math.min(box.scrollHeight, 140) + "px";
+});
+document.querySelectorAll(".chip").forEach(c => c.addEventListener("click", () => ask(c.textContent)));
+</script>
 </body>
 </html>
