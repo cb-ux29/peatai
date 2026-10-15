@@ -5,164 +5,192 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PeatAI: Ray Peat Soru-Cevap</title>
 <style>
-:root{
-  --soil:#2C2218; --soil-edge:#46372A; --paper:#D9DCC8; --field:#EEF0E1;
-  --ink:#1F1A12; --brown:#6B3A12; --link:#1A3C8C; --btn:#C6C9B0; --btn-hi:#EAEBDB; --err:#8C1D1D;
-}
+:root{--soil:#2C2218;--soil2:#3A2E22;--sand:#E9E2D2;--bg:#EEF1EA;--card:#fff;--ink:#1F1A12;--muted:#6A6F63;--line:#D5DAD0;--moss:#3F6B4F;--err:#9B2C2C}
 *{box-sizing:border-box}
-body{margin:0;padding:24px 12px;background:var(--soil);color:var(--ink);
-  font-family:"Times New Roman",Times,"Liberation Serif",serif;font-size:18px;line-height:1.5}
-.page{max-width:760px;margin:0 auto;background:var(--paper);border:4px double var(--ink);
-  box-shadow:0 0 0 6px var(--soil-edge);padding:22px 26px 18px}
-header{text-align:center}
-h1{margin:0;font-size:2.5rem;font-weight:700;letter-spacing:.04em}
-.tag{margin:4px 0 0;font-style:italic}
-hr{border:0;border-top:2px solid var(--ink);margin:16px 0}
-h2{font-size:1.15rem;margin:0 0 6px}
-.examples{margin:0 0 4px;padding-left:22px}
-.examples li{margin:3px 0}
-button.link{background:none;border:0;padding:0;font:inherit;color:var(--link);text-decoration:underline;cursor:pointer;text-align:left}
-button.link:hover{color:var(--brown)}
-.turn{margin:0 0 18px}
-.turn b{color:var(--brown)}
-.ans{white-space:pre-wrap;line-height:1.6;margin-top:2px}
-.turn.err .ans{color:var(--err)}
-.hint{font-style:italic;margin-top:4px}
-.cursor{display:inline-block;width:.6em;animation:blink 1s steps(2,start) infinite}
-@keyframes blink{to{visibility:hidden}}
-@media (prefers-reduced-motion:reduce){.cursor{animation:none}}
-label{display:block;font-weight:700;margin-bottom:4px}
-textarea{width:100%;resize:vertical;min-height:84px;font:inherit;color:var(--ink);
-  background:var(--field);border:3px inset #8A8670;padding:8px 10px}
-.btn{font:inherit;font-weight:700;color:var(--ink);background:var(--btn);
-  border:3px outset var(--btn-hi);padding:6px 18px;cursor:pointer}
-.btn:active{border-style:inset}
-.btn:disabled{opacity:.55;cursor:not-allowed}
-.row{margin-top:8px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.row small{font-style:italic}
-textarea:focus-visible,.btn:focus-visible,button.link:focus-visible{outline:2px solid var(--brown);outline-offset:2px}
-.note{font-size:.85rem;text-align:center;margin:0}
-@media (max-width:520px){.page{padding:16px 14px}h1{font-size:2rem}}
+html,body{margin:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.5}
+button{font:inherit;cursor:pointer}
+.app{display:grid;grid-template-columns:300px 1fr;height:100vh;height:100dvh}
+aside{background:var(--soil);color:var(--sand);display:flex;flex-direction:column;min-height:0;padding:16px 14px;gap:10px}
+.brand{font-family:Georgia,serif;font-size:1.6rem;font-weight:700}
+.sub{font-size:.82rem;opacity:.7;margin-top:-8px}
+.new{background:var(--moss);color:#fff;border:0;border-radius:10px;padding:10px;font-weight:600}
+#search{width:100%;background:var(--soil2);color:var(--sand);border:1px solid #54443A;border-radius:10px;padding:9px 12px;font:inherit}
+#search::placeholder{color:#A99E8C}
+#list{list-style:none;margin:0;padding:0;overflow-y:auto;flex:1}
+#list li{display:flex;align-items:flex-start}
+.item{flex:1;min-width:0;text-align:left;background:none;border:0;color:inherit;padding:8px;border-radius:8px}
+.item:hover,.del:hover{background:var(--soil2)}
+.item b{font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.item span{display:block;font-size:.75rem;opacity:.6}
+.del{background:none;border:0;color:inherit;opacity:.6;padding:6px 9px;border-radius:8px;font-size:1.1rem}
+.none{font-size:.88rem;opacity:.7;padding:8px}
+.foot{display:flex;gap:8px}
+.foot button{flex:1;background:none;color:var(--sand);border:1px solid #54443A;border-radius:10px;padding:8px;font-size:.85rem}
+.foot button:hover{background:var(--soil2)}
+.priv{font-size:.72rem;opacity:.6;margin:0}
+main{display:flex;flex-direction:column;min-width:0;min-height:0}
+.top{display:none;align-items:center;gap:10px;padding:10px 14px;background:var(--soil);color:var(--sand)}
+.top button{background:none;border:1px solid #54443A;color:inherit;border-radius:8px;padding:6px 12px}
+#feed{flex:1;overflow-y:auto;padding:28px 20px}
+.col{max-width:720px;margin:0 auto}
+.empty h2{font-family:Georgia,serif;font-size:1.5rem;margin:8px 0 4px}
+.empty p{color:var(--muted);margin:0 0 16px}
+.chip{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px;color:var(--ink)}
+.chip:hover{border-color:var(--moss)}
+.entry{margin-bottom:28px}
+.q{font-weight:600;font-size:1.05rem;margin:0 0 8px}
+.a{font-family:Georgia,serif;font-size:1.06rem;line-height:1.65;white-space:pre-wrap;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--moss);border-radius:10px;padding:14px 16px}
+.a.err{border-left-color:var(--err);color:var(--err);font-family:inherit;font-size:.98rem}
+.src{font-size:.88rem;color:var(--muted);margin-top:8px}
+.src ul{margin:4px 0;padding-left:20px}
+.src a{color:var(--moss)}
+.meta{font-size:.78rem;color:var(--muted);margin-top:4px}
+.retry{margin-top:8px;background:none;border:1px solid var(--moss);color:var(--moss);border-radius:8px;padding:6px 12px;font-weight:600}
+.dots i{display:inline-block;width:7px;height:7px;margin-right:4px;border-radius:50%;background:var(--moss);animation:b 1s infinite}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,80%,100%{opacity:.25}40%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.dots i{animation:none}}
+.hint{font-size:.88rem;color:var(--muted);margin-top:6px}
+.comp{border-top:1px solid var(--line);padding:12px 20px 10px;background:var(--bg)}
+.rowform{display:flex;gap:8px;align-items:flex-end}
+textarea{flex:1;resize:none;font:inherit;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:11px 14px;min-height:46px;max-height:140px}
+.send{background:var(--moss);color:#fff;border:0;border-radius:12px;height:46px;padding:0 20px;font-weight:700}
+.send:disabled{opacity:.5;cursor:not-allowed}
+.disc{font-size:.75rem;color:var(--muted);text-align:center;margin:8px 0 0}
+textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visible{outline:2px solid var(--moss);outline-offset:2px}
+#scrim{display:none}
+@media (max-width:760px){
+  .app{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  aside{position:fixed;inset:0 auto 0 0;width:84%;max-width:320px;transform:translateX(-100%);transition:transform .2s;z-index:6}
+  aside.open{transform:none}
+  #scrim.on{display:block;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:5}
+  .top{display:flex}
+}
 </style>
 </head>
 <body>
-<div class="page">
-  <header>
-    <h1>PeatAI</h1>
-    <p class="tag">Dr. Ray Peat'in bakış açısıyla Türkçe soru ve cevap</p>
-  </header>
-  <hr>
-
-  <section id="intro">
-    <h2>Örnek sorular</h2>
-    <ul class="examples">
-      <li><button class="link" type="button">Tiroid hormonu metabolizma için neden önemli?</button></li>
-      <li><button class="link" type="button">Şeker ve meyve suyu hakkında Ray Peat ne diyor?</button></li>
-      <li><button class="link" type="button">Progesteron ve östrojen dengesi nedir?</button></li>
-      <li><button class="link" type="button">Çoklu doymamış yağlar neden sorun olabilir?</button></li>
-    </ul>
-    <hr>
-  </section>
-
-  <section id="log" aria-live="polite"></section>
-
-  <form id="form">
-    <label for="q">Sorunu yaz:</label>
-    <textarea id="q" placeholder="Örnek: Kalp sağlığı için hangi besinler önemli?"></textarea>
-    <div class="row">
-      <button class="btn" id="send" type="submit">Soruyu gönder</button>
-      <small>Enter ile gönderilir, satır atlamak için Shift+Enter.</small>
+<div class="app">
+  <aside id="side">
+    <div class="brand">PeatAI</div>
+    <div class="sub">Geçmiş sorular</div>
+    <button class="new" id="new" type="button">Yeni soru</button>
+    <input id="search" type="search" placeholder="Geçmişte ara…" aria-label="Geçmişte ara">
+    <ul id="list"></ul>
+    <div class="foot">
+      <button id="export" type="button">Dışa aktar</button>
+      <button id="clear" type="button">Geçmişi sil</button>
     </div>
-  </form>
+    <p class="priv">Geçmiş yalnızca bu cihazdaki tarayıcında saklanır.</p>
+  </aside>
+  <div id="scrim"></div>
 
-  <hr>
-  <p class="note">Yanıtlar yapay zekâ ile üretilir ve tıbbi tavsiye yerine geçmez.</p>
+  <main>
+    <div class="top"><button id="menu" type="button">Geçmiş</button><strong>PeatAI</strong></div>
+    <div id="feed" aria-live="polite"></div>
+    <div class="comp">
+      <form id="form">
+        <div class="col rowform">
+          <textarea id="q" rows="1" placeholder="Sorunu yaz… (Enter ile gönder)" aria-label="Sorun"></textarea>
+          <button class="send" id="send" type="submit">Gönder</button>
+        </div>
+      </form>
+      <p class="disc">Yanıtlar yapay zekâ ile üretilir ve tıbbi tavsiye yerine geçmez.</p>
+    </div>
+  </main>
 </div>
 
 <script>
-const API_BASE = "https://peatai-backend.onrender.com";
-const log = document.getElementById("log");
-const intro = document.getElementById("intro");
-const form = document.getElementById("form");
-const box = document.getElementById("q");
-const sendBtn = document.getElementById("send");
-let busy = false;
+const API="https://peatai-backend.onrender.com",KEY="peatai_history_v1";
+const $=id=>document.getElementById(id);
+const feed=$("feed"),list=$("list"),search=$("search"),form=$("form"),box=$("q"),sendBtn=$("send"),side=$("side"),scrim=$("scrim");
+let history=load(),busy=false;
+fetch(API+"/health").catch(()=>{});
 
-// Sunucu uyuyorsa sayfa açılır açılmaz uyandır
-fetch(API_BASE + "/health").catch(() => {});
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return[]}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(history))}catch(e){document.querySelector(".priv").textContent="Tarayıcın kayıt tutmaya izin vermiyor (gizli sekmede olabilir). Geçmiş sayfa yenilenince kaybolur."}}
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const fmt=t=>esc(t).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/^\s*[*-]\s+/gm,"• ");
+const when=ts=>new Date(ts).toLocaleString("tr-TR",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
 
-function escapeHtml(s){
-  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+function srcHtml(s){
+  const ok=(s||[]).filter(x=>x.url&&x.url.indexOf("https://wikipeatia.org/")===0);
+  if(!ok.length)return '<div class="src">WikiPeatia\'da eşleşme bulunamadı; yanıt modelin genel bilgisine dayanıyor.</div>';
+  return '<div class="src"><b>Kaynaklar (WikiPeatia)</b><ul>'+ok.map(x=>'<li><a href="'+esc(x.url)+'" target="_blank" rel="noopener">'+esc(x.title)+'</a></li>').join("")+'</ul>Bu sayfaların arama özetleri bağlam olarak kullanıldı; yanıt Gemini ile üretildi.</div>';
 }
-function format(text){
-  return escapeHtml(text)
-    .replace(/\*\*(.+?)\*\*/g,"<b>$1</b>")
-    .replace(/^\s*[*-]\s+/gm,"• ");
+function entryHtml(e){
+  return '<article class="entry"><div class="q">'+esc(e.q)+'</div><div class="a">'+fmt(e.a)+'</div>'+srcHtml(e.sources)+'<div class="meta">'+when(e.ts)+'</div></article>';
 }
-function addTurn(cls, label, html){
-  const d = document.createElement("div");
-  d.className = "turn " + cls;
-  d.innerHTML = "<b>" + label + "</b><div class=\"ans\">" + html + "</div>";
-  log.appendChild(d);
-  d.scrollIntoView({block:"nearest"});
-  return d;
+function showEmpty(){
+  feed.innerHTML='<div class="col empty" id="empty"><h2>Ne öğrenmek istersin?</h2><p>Bir soru yaz ya da örneklerden birine dokun.</p>'+
+  ["Tiroid hormonu metabolizma için neden önemli?","Şeker ve meyve suyu hakkında Ray Peat ne diyor?","Progesteron ve östrojen dengesi nedir?","Çoklu doymamış yağlar neden sorun olabilir?"].map(t=>'<button class="chip" type="button">'+t+'</button>').join("")+'</div>';
 }
+function col(){let c=feed.querySelector(".col");if(!c){feed.innerHTML='<div class="col"></div>';c=feed.firstChild}return c}
 
-async function ask(question){
-  if (busy || !question.trim()) return;
-  busy = true; sendBtn.disabled = true;
-  if (intro) intro.remove();
-  addTurn("q", "Soru:", escapeHtml(question));
+function renderList(){
+  const f=search.value.trim().toLocaleLowerCase("tr");
+  const items=history.slice().reverse().filter(e=>!f||(e.q+" "+e.a).toLocaleLowerCase("tr").includes(f));
+  if(!items.length){list.innerHTML='<li class="none">'+(history.length?"Eşleşen kayıt yok.":"Henüz kayıt yok. Sorduğun sorular burada saklanır.")+'</li>';return}
+  list.innerHTML=items.map(e=>'<li><button class="item" data-id="'+e.id+'"><b>'+esc(e.q)+'</b><span>'+when(e.ts)+'</span></button><button class="del" data-del="'+e.id+'" aria-label="Kaydı sil">×</button></li>').join("");
+}
+function openSide(){side.classList.add("open");scrim.classList.add("on")}
+function closeSide(){side.classList.remove("open");scrim.classList.remove("on")}
 
-  const wait = addTurn("a", "Cevap:", 'Hazırlanıyor<span class="cursor">▌</span><div class="hint" id="hint"></div>');
-  const t1 = setTimeout(() => {
-    const h = wait.querySelector("#hint");
-    if (h) h.textContent = "Sunucu uyanıyor. İlk soruda bu bir dakikaya kadar sürebilir, lütfen bekle.";
-  }, 8000);
-
-  const ctrl = new AbortController();
-  const t2 = setTimeout(() => ctrl.abort(), 120000);
-
-  try {
-    const res = await fetch(API_BASE + "/ask-peat", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({question: question}),
-      signal: ctrl.signal
-    });
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const data = await res.json();
+async function ask(q){
+  if(busy||!q.trim())return;
+  busy=true;sendBtn.disabled=true;
+  if($("empty"))feed.innerHTML="";
+  const c=col();
+  const art=document.createElement("article");art.className="entry";
+  art.innerHTML='<div class="q">'+esc(q)+'</div>';
+  const wait=document.createElement("div");
+  wait.innerHTML='<span class="dots"><i></i><i></i><i></i></span><div class="hint">Cevap hazırlanıyor…</div>';
+  art.appendChild(wait);c.appendChild(art);art.scrollIntoView({block:"nearest"});
+  const t1=setTimeout(()=>{wait.querySelector(".hint").textContent="Sunucu uyanıyor; ilk soruda bu bir dakikaya kadar sürebilir."},8000);
+  const ctrl=new AbortController(),t2=setTimeout(()=>ctrl.abort(),120000);
+  try{
+    const r=await fetch(API+"/ask-peat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:q}),signal:ctrl.signal});
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    const d=await r.json();
+    const e={id:Date.now(),q:q,a:d.answer_tr||"Boş yanıt geldi, soruyu farklı yazmayı dene.",sources:d.sources||[],ts:Date.now()};
+    history.push(e);save();renderList();
+    art.outerHTML=entryHtml(e);
+    c.lastElementChild.scrollIntoView({block:"nearest"});
+  }catch(err){
     wait.remove();
-    addTurn("a", "Cevap:", format(data.answer_tr || "Boş yanıt geldi, soruyu farklı yazmayı dene."));
-  } catch (e) {
-    wait.remove();
-    let msg = "Cevap alınamadı. İnternet bağlantını kontrol edip tekrar dene.";
-    if (e.name === "AbortError") msg = "Sunucu zamanında yanıt vermedi. Bir dakika sonra tekrar dene.";
-    else if (String(e.message).includes("HTTP 5")) msg = "Sunucu şu an yanıt veremiyor. Biraz sonra tekrar dene.";
-    else if (String(e.message).includes("HTTP 4")) msg = "İstek sunucuya ulaştı ama kabul edilmedi (" + e.message + ").";
-    const err = addTurn("err", "Hata:", escapeHtml(msg));
-    const b = document.createElement("button");
-    b.className = "btn"; b.type = "button"; b.textContent = "Tekrar dene";
-    b.style.marginTop = "8px";
-    b.onclick = () => { err.remove(); busy = false; ask(question); };
-    err.appendChild(b);
-  } finally {
-    clearTimeout(t1); clearTimeout(t2);
-    busy = false; sendBtn.disabled = false;
+    let m="Cevap alınamadı. İnternet bağlantını kontrol edip tekrar dene.";
+    if(err.name==="AbortError")m="Sunucu zamanında yanıt vermedi. Bir dakika sonra tekrar dene.";
+    else if(String(err.message).includes("HTTP 5"))m="Sunucu şu an yanıt veremiyor. Biraz sonra tekrar dene.";
+    else if(String(err.message).includes("HTTP 4"))m="İstek kabul edilmedi ("+err.message+").";
+    art.insertAdjacentHTML("beforeend",'<div class="a err">'+esc(m)+'</div>');
+    const b=document.createElement("button");b.className="retry";b.type="button";b.textContent="Tekrar dene";
+    b.onclick=()=>{art.remove();ask(q)};art.appendChild(b);
+  }finally{
+    clearTimeout(t1);clearTimeout(t2);busy=false;sendBtn.disabled=false;
   }
 }
 
-form.addEventListener("submit", ev => {
-  ev.preventDefault();
-  const v = box.value.trim();
-  if (!v) return;
-  box.value = "";
-  ask(v);
+form.addEventListener("submit",ev=>{ev.preventDefault();const v=box.value.trim();if(!v)return;box.value="";box.style.height="auto";ask(v)});
+box.addEventListener("keydown",ev=>{if(ev.key==="Enter"&&!ev.shiftKey){ev.preventDefault();form.requestSubmit()}});
+box.addEventListener("input",()=>{box.style.height="auto";box.style.height=Math.min(box.scrollHeight,140)+"px"});
+feed.addEventListener("click",ev=>{const c=ev.target.closest(".chip");if(c)ask(c.textContent)});
+search.addEventListener("input",renderList);
+list.addEventListener("click",ev=>{
+  const d=ev.target.closest("[data-del]");
+  if(d){history=history.filter(e=>String(e.id)!==d.dataset.del);save();renderList();return}
+  const i=ev.target.closest("[data-id]");
+  if(i){const e=history.find(x=>String(x.id)===i.dataset.id);if(e){feed.innerHTML='<div class="col">'+entryHtml(e)+'</div>';feed.scrollTop=0;closeSide()}}
 });
-box.addEventListener("keydown", ev => {
-  if (ev.key === "Enter" && !ev.shiftKey){ ev.preventDefault(); form.requestSubmit(); }
-});
-document.querySelectorAll("button.link").forEach(c => c.addEventListener("click", () => ask(c.textContent)));
+$("new").onclick=()=>{showEmpty();closeSide();box.focus()};
+$("menu").onclick=openSide;scrim.onclick=closeSide;
+$("clear").onclick=()=>{if(history.length&&confirm("Tüm geçmiş silinsin mi? Bu geri alınamaz.")){history=[];save();renderList();showEmpty()}};
+$("export").onclick=()=>{
+  if(!history.length){alert("Dışa aktarılacak kayıt yok.");return}
+  const t=history.map(e=>"Soru: "+e.q+"\n\nCevap: "+e.a+"\n\nKaynaklar: "+((e.sources||[]).map(s=>s.title+" ("+s.url+")").join("; ")||"yok")+"\nTarih: "+when(e.ts)).join("\n\n----------\n\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"text/plain;charset=utf-8"}));a.download="peatai-gecmis.txt";a.click();
+};
+renderList();
+if(history.length){feed.innerHTML='<div class="col">'+history.slice(-20).map(e=>entryHtml(e)).join("")+'</div>';feed.scrollTop=feed.scrollHeight}else showEmpty();
 </script>
 </body>
 </html>
