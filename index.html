@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PeatAI: Ray Peat Soru-Cevap</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2C2218">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PeatAI">
 <style>
 :root{--soil:#2C2218;--soil2:#3A2E22;--sand:#E9E2D2;--bg:#EEF1EA;--card:#fff;--ink:#1F1A12;--muted:#6A6F63;--line:#D5DAD0;--moss:#3F6B4F;--err:#9B2C2C}
 *{box-sizing:border-box}
@@ -92,22 +98,21 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
     <div class="comp">
       <form id="form">
         <div class="col rowform">
-          <textarea id="q" rows="1" placeholder="Sorunu yaz… (Enter ile gönder)" aria-label="Sorun"></textarea>
+          <textarea id="q" rows="1" maxlength="2000" placeholder="Sorunu yaz… (Enter ile gönder)" aria-label="Sorun"></textarea>
           <button class="send" id="send" type="submit">Gönder</button>
         </div>
       </form>
-      <p class="disc">Yanıtlar yapay zekâ ile üretilir ve tıbbi tavsiye yerine geçmez.</p>
+      <p class="disc">Kişisel sağlık bilgilerini yazma. Yanıtlar yapay zekâ ile üretilir ve tıbbi tavsiye yerine geçmez.</p>
     </div>
   </main>
 </div>
 
 <script>
-const API="https://peatai-backend.onrender.com",KEY="peatai_chats_v1";
+const API="https://peatai.cihanbediz.workers.dev",KEY="peatai_chats_v1";
 const $=id=>document.getElementById(id);
 const feed=$("feed"),list=$("list"),search=$("search"),form=$("form"),box=$("q"),sendBtn=$("send"),side=$("side"),scrim=$("scrim"),ttl=$("ttl");
 function short(t){t=String(t).replace(/\s+/g," ").trim();return t.length>42?t.slice(0,40)+"…":t}
 let chats=load(),current=null,busy=false;
-fetch(API+"/health").catch(()=>{});
 
 function load(){
   try{const c=JSON.parse(localStorage.getItem(KEY));if(Array.isArray(c))return c}catch(e){}
@@ -122,8 +127,8 @@ const cur=()=>chats.find(c=>c.id===current)||null;
 
 function srcHtml(s){
   const ok=(s||[]).filter(x=>x.url&&x.url.indexOf("https://")===0);
-  if(!ok.length)return '<div class="src">Kaynak bulunamadı; yanıt modelin genel bilgisine dayanıyor.</div>';
-  return '<div class="src"><b>Kaynaklar</b><ul>'+ok.map(x=>'<li><a href="'+esc(x.url)+'" target="_blank" rel="noopener">'+esc(x.title)+'</a></li>').join("")+'</ul>Bu sayfaların arama özetleri bağlam olarak kullanıldı; yanıt Gemini ile üretildi.</div>';
+  if(!ok.length)return '';
+  return '<div class="src"><b>Kaynaklar</b><ul>'+ok.map(x=>'<li><a href="'+esc(x.url)+'" target="_blank" rel="noopener">'+esc(x.title)+'</a></li>').join("")+'</ul></div>';
 }
 function entryHtml(e){
   return '<article class="entry"><div class="q">'+esc(e.q)+'</div><div class="a">'+fmt(e.a)+'</div>'+srcHtml(e.sources)+'<div class="meta">'+when(e.ts)+'</div></article>';
@@ -171,12 +176,12 @@ async function ask(q){
   const wait=document.createElement("div");
   wait.innerHTML='<span class="dots"><i></i><i></i><i></i></span><div class="hint">Cevap hazırlanıyor…</div>';
   art.appendChild(wait);c.appendChild(art);art.scrollIntoView({block:"nearest"});
-  const t1=setTimeout(()=>{wait.querySelector(".hint").textContent="Sunucu uyanıyor; ilk soruda bu bir dakikaya kadar sürebilir."},8000);
+  const t1=setTimeout(()=>{wait.querySelector(".hint").textContent="Yoğunluk olabilir, cevap biraz daha uzun sürebilir."},8000);
   const ctrl=new AbortController(),t2=setTimeout(()=>ctrl.abort(),120000);
   try{
     const hist=chat.msgs.slice(-3).map(e=>({q:e.q,a:String(e.a).slice(0,600)}));
     const r=await fetch(API+"/ask-peat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:q,history:hist}),signal:ctrl.signal});
-    if(!r.ok)throw new Error("HTTP "+r.status);
+    if(!r.ok){let em="";try{em=(await r.json()).error||""}catch(x){}const er=new Error("HTTP "+r.status);er.userMsg=em;throw er}
     const d=await r.json();
     const m={id:Date.now(),q:q,a:d.answer_tr||"Boş yanıt geldi, soruyu farklı yazmayı dene.",sources:d.sources||[],ts:Date.now()};
     chat.msgs.push(m);chat.ts=Date.now();
@@ -191,6 +196,7 @@ async function ask(q){
     if(err.name==="AbortError")msg="Sunucu zamanında yanıt vermedi. Bir dakika sonra tekrar dene.";
     else if(String(err.message).includes("HTTP 5"))msg="Sunucu şu an yanıt veremiyor. Biraz sonra tekrar dene.";
     else if(String(err.message).includes("HTTP 4"))msg="İstek kabul edilmedi ("+err.message+").";
+    if(err.userMsg)msg=err.userMsg;
     art.insertAdjacentHTML("beforeend",'<div class="a err">'+esc(msg)+'</div>');
     const b=document.createElement("button");b.className="retry";b.type="button";b.textContent="Tekrar dene";
     b.onclick=()=>{art.remove();ask(q)};art.appendChild(b);
@@ -225,6 +231,7 @@ $("export").onclick=()=>{
 };
 renderList();
 if(chats.length)showChat(chats.slice().sort((a,b)=>b.ts-a.ts)[0]);else showEmpty();
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 </script>
 </body>
 </html>
