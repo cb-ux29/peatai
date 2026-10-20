@@ -10,7 +10,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="PeatAI">
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root{--soil:#2C2218;--soil2:#3A2E22;--sand:#E9E2D2;--bg:#EEF1EA;--card:#fff;--ink:#1F1A12;--muted:#6A6F63;--line:#D5DAD0;--moss:#3F6B4F;--err:#9B2C2C}
 *{box-sizing:border-box}
@@ -66,10 +65,34 @@ textarea{flex:1;resize:none;font:inherit;background:var(--card);color:var(--ink)
 .send{background:var(--moss);color:#fff;border:0;border-radius:12px;height:46px;padding:0 20px;font-weight:700}
 .send:disabled{opacity:.5;cursor:not-allowed}
 .disc{font-size:.75rem;color:var(--muted);text-align:center;margin:8px 0 0}
-textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visible{outline:2px solid var(--moss);outline-offset:2px}
+textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--moss);outline-offset:2px}
 .acct{border-top:1px solid #54443A;padding-top:10px}
 .aw{font-size:.82rem;opacity:.85;margin-bottom:8px;word-break:break-all}
+.authbtn{display:block;width:100%;background:var(--soil2);color:var(--sand);border:1px solid #54443A;border-radius:10px;padding:9px;margin-bottom:8px;font-weight:600}
+.authbtn:hover{background:#4A3C30}
+.authbtn.primary{background:var(--moss);color:#fff;border-color:var(--moss)}
 #scrim{display:none}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:20;padding:16px}
+.modal.on{display:flex}
+.card{background:var(--card);color:var(--ink);border-radius:14px;padding:20px;width:100%;max-width:360px;max-height:92vh;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.card h3{font-family:Georgia,serif;margin:0 0 2px;font-size:1.25rem}
+.card .sub2{color:var(--muted);font-size:.84rem;margin:0 0 14px}
+.tabs{display:flex;gap:6px;margin-bottom:14px}
+.tabs button{flex:1;padding:8px 4px;border:1px solid var(--line);background:none;border-radius:8px;font-size:.82rem}
+.tabs button.on{background:var(--moss);color:#fff;border-color:var(--moss)}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:.8rem;margin-bottom:4px;color:var(--muted)}
+.field input{width:100%;font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+.btn{width:100%;padding:10px;border:0;border-radius:10px;background:var(--moss);color:#fff;font-weight:700;margin-top:4px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.linkrow{text-align:center;margin-top:10px}
+.link{background:none;border:0;color:var(--moss);font-size:.85rem;text-decoration:underline;cursor:pointer}
+.ferr{color:var(--err);font-size:.84rem;margin-top:10px;white-space:pre-wrap}
+.code{background:#F3EFE4;border:1px dashed var(--moss);border-radius:10px;padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:1.05rem;text-align:center;letter-spacing:.5px;margin:10px 0;word-break:break-all}
+.note{font-size:.8rem;color:var(--muted)}
+.ctl{display:flex;gap:8px;margin-top:8px}
+.ctl button{flex:1;padding:9px;border-radius:10px;border:1px solid var(--moss);background:none;color:var(--moss);font-weight:600}
+.ctl button.fill{background:var(--moss);color:#fff}
 @media (max-width:760px){
   .app{grid-template-columns:1fr;grid-template-rows:auto 1fr}
   aside{position:fixed;inset:0 auto 0 0;width:84%;max-width:320px;transform:translateX(-100%);transition:transform .2s;z-index:6}
@@ -92,7 +115,7 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
       <button id="export" type="button">Dışa aktar</button>
       <button id="clear" type="button">Hepsini sil</button>
     </div>
-    <p class="priv">Giriş yapmazsan sohbetlerin yalnızca bu tarayıcıda saklanır. Giriş yaparsan e-posta adresin ve sohbetlerin sunucuda saklanır; istediğin an "Hesabımı sil" ile kaldırabilirsin.</p>
+    <p class="priv">Giriş yapmazsan sohbetlerin yalnızca bu tarayıcıda saklanır. Üye olursan kullanıcı adın ve sohbetlerin sunucuda saklanır; istediğin an "Hesabımı sil" ile kaldırabilirsin. Kurtarma kodunu güvenli bir yere kaydet; kaybedersen hesabını kurtaramazsın.</p>
   </aside>
   <div id="scrim"></div>
 
@@ -111,6 +134,16 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
   </main>
 </div>
 
+<div class="modal" id="modal">
+  <div class="card">
+    <h3 id="mTitle">Giriş yap</h3>
+    <p class="sub2" id="mSub"></p>
+    <div class="tabs" id="mTabs"></div>
+    <form id="mForm" novalidate></form>
+    <p class="ferr" id="mErr"></p>
+  </div>
+</div>
+
 <script>
 const API="https://peatai.cihanbediz.workers.dev",KEY="peatai_chats_v1";
 const $=id=>document.getElementById(id);
@@ -119,17 +152,16 @@ function short(t){t=String(t).replace(/\s+/g," ").trim();return t.length>42?t.sl
 let chats=load(),current=null,busy=false;
 
 // ---------- Üyelik ----------
-const GCID="166458437576-7ttvh0ee0590jofgpofal2uou9iuc5ea.apps.googleusercontent.com";
 const tget=k=>{try{return localStorage.getItem(k)||""}catch(e){return""}};
 const tset=(k,v)=>{try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}};
-let token=tget("peatai_token"),email=tget("peatai_email");
+let token=tget("peatai_token"),name=tget("peatai_name");
 
 async function api(path,body){
   const h={"Content-Type":"application/json"};
-  if(token&&path!=="/auth/google")h.Authorization="Bearer "+token;
+  if(token&&!path.startsWith("/auth/"))h.Authorization="Bearer "+token;
   const r=await fetch(API+path,{method:"POST",headers:h,body:JSON.stringify(body||{})});
   let d={};try{d=await r.json()}catch(e){}
-  if(r.status===401&&token&&path!=="/auth/google")logout(false);
+  if(r.status===401&&token&&!path.startsWith("/auth/"))logout(false);
   if(!r.ok){const er=new Error(d.error||"HTTP "+r.status);er.userMsg=d.error;throw er}
   return d;
 }
@@ -152,18 +184,11 @@ async function pullAndMerge(){
     else renderList();
   }
 }
-async function onCred(resp){
-  try{
-    const d=await api("/auth/google",{credential:resp.credential});
-    token=d.token;email=d.email;tset("peatai_token",token);tset("peatai_email",email);
-    drawAcct();
-    await pullAndMerge();
-  }catch(e){alert(e.userMsg||"Giriş yapılamadı. Tekrar dene.")}
-}
+function setAuth(t,u){token=t;name=u;tset("peatai_token",t);tset("peatai_name",u);drawAcct()}
 function logout(manual){
   if(manual&&!confirm("Çıkış yapınca bu cihazdaki sohbetler silinir (hesabında kayıtlı kalır). Devam?"))return;
-  token="";email="";tset("peatai_token","");tset("peatai_email","");
-  if(manual){try{google.accounts.id.disableAutoSelect()}catch(e){}chats=[];save();showEmpty()}
+  token="";name="";tset("peatai_token","");tset("peatai_name","");
+  if(manual){chats=[];save();showEmpty()}
   drawAcct();
 }
 async function delAccount(){
@@ -175,21 +200,116 @@ async function delAccount(){
 function drawAcct(){
   const a=$("acct");
   if(token){
-    a.innerHTML='<div class="aw">'+esc(email)+'</div><div class="foot"><button id="logout" type="button">Çıkış yap</button><button id="delacc" type="button">Hesabımı sil</button></div>';
+    a.innerHTML='<div class="aw">'+esc(name)+'</div><div class="foot"><button id="logout" type="button">Çıkış yap</button><button id="delacc" type="button">Hesabımı sil</button></div>';
     $("logout").onclick=()=>logout(true);
     $("delacc").onclick=delAccount;
   }else{
-    a.innerHTML='<div class="aw">Sohbetlerine her yerden ulaşmak için giriş yap.</div><div id="gbtn"></div>';
-    if(window.google&&google.accounts&&google.accounts.id)google.accounts.id.renderButton($("gbtn"),{theme:"filled_black",size:"large",text:"signin_with",shape:"pill",width:250});
+    a.innerHTML='<div class="aw">Sohbetlerine her yerden ulaşmak için giriş yap.</div>'+
+      '<button class="authbtn primary" id="btnLogin" type="button">Giriş yap</button>'+
+      '<button class="authbtn" id="btnSignup" type="button">Üye ol</button>';
+    $("btnLogin").onclick=()=>openModal("login");
+    $("btnSignup").onclick=()=>openModal("signup");
   }
 }
-let gTries=0;
-function initGoogle(){
-  if(window.google&&google.accounts&&google.accounts.id){google.accounts.id.initialize({client_id:GCID,callback:onCred});drawAcct();return}
-  if(++gTries>40){if(!token)$("acct").innerHTML='<div class="aw">Google girişi yüklenemedi. Reklam engelleyici ya da tarayıcı korumasını kapatıp sayfayı yenile.</div>';return}
-  setTimeout(initGoogle,300);
+
+// ---------- Üyelik kutusu (modal) ----------
+const modal=$("modal"),mTitle=$("mTitle"),mSub=$("mSub"),mTabs=$("mTabs"),mForm=$("mForm"),mErr=$("mErr");
+let mode="login";
+const MODES={
+  login:{t:"Giriş yap",s:"Kullanıcı adın ve şifrenle giriş yap."},
+  signup:{t:"Üye ol",s:"Kullanıcı adı ve şifre seç. Şifren en az 8 karakter olsun."},
+  recover:{t:"Şifremi unuttum",s:"Kurtarma kodunla yeni şifre belirle."}
+};
+function openModal(m){
+  mode=m;mErr.textContent="";
+  renderModal();
+  modal.classList.add("on");
+  const f=mForm.querySelector("input");if(f)f.focus();
+}
+function closeModal(){modal.classList.remove("on");mForm.innerHTML="";mErr.textContent=""}
+modal.addEventListener("click",ev=>{if(ev.target===modal)closeModal()});
+
+const te=new TextEncoder();
+function buf2hex(buf){return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("")}
+async function derivePwKey(username,password){
+  const salt=te.encode("peatai-v1:"+username.toLowerCase());
+  const km=await crypto.subtle.importKey("raw",te.encode(password),"PBKDF2",false,["deriveBits"]);
+  const bits=await crypto.subtle.deriveBits({name:"PBKDF2",salt,iterations:600000,hash:"SHA-256"},km,256);
+  return buf2hex(bits);
 }
 
+function field(id,label,type,ph){
+  return '<div class="field"><label for="'+id+'">'+label+'</label><input id="'+id+'" type="'+type+'" placeholder="'+ph+'" autocomplete="off"></div>';
+}
+function renderModal(){
+  mTitle.textContent=MODES[mode].t;mSub.textContent=MODES[mode].s;
+  mTabs.innerHTML=['login','signup','recover'].map(m=>'<button type="button" data-mode="'+m+'" class="'+(m===mode?'on':'')+'">'+MODES[m].t+'</button>').join("");
+  mTabs.querySelectorAll("button").forEach(b=>b.onclick=()=>{mode=b.dataset.mode;mErr.textContent="";renderModal()});
+  if(mode==="login"){
+    mForm.innerHTML=field("f_user","Kullanıcı adı","text","ör. rayfan")+field("f_pass","Şifre","password","••••••••")+
+      '<button class="btn" type="submit">Giriş yap</button>'+
+      '<div class="linkrow"><button class="link" type="button" id="goRecover">Şifremi unuttum</button></div>';
+    $("goRecover").onclick=()=>{mode="recover";mErr.textContent="";renderModal()};
+    mForm.onsubmit=async ev=>{ev.preventDefault();await doLogin($("f_user").value,$("f_pass").value)};
+  }else if(mode==="signup"){
+    mForm.innerHTML=field("f_user","Kullanıcı adı","text","harf, rakam, _ - . (3-20)")+field("f_pass","Şifre","password","en az 8 karakter")+
+      '<button class="btn" type="submit">Üye ol</button>';
+    mForm.onsubmit=async ev=>{ev.preventDefault();await doSignup($("f_user").value,$("f_pass").value)};
+  }else{
+    mForm.innerHTML=field("f_user","Kullanıcı adı","text","ör. rayfan")+field("f_code","Kurtarma kodu","text","XXXX-XXXX-XXXX-XXXX")+field("f_pass","Yeni şifre","password","en az 8 karakter")+
+      '<button class="btn" type="submit">Şifreyi sıfırla</button>';
+    mForm.onsubmit=async ev=>{ev.preventDefault();await doRecover($("f_user").value,$("f_code").value,$("f_pass").value)};
+  }
+}
+
+async function doLogin(u,p){
+  if(!u.trim()||!p){mErr.textContent="Kullanıcı adı ve şifreyi doldur.";return}
+  const btn=mForm.querySelector(".btn");btn.disabled=true;btn.textContent="İşleniyor…";mErr.textContent="";
+  try{
+    const pwkey=await derivePwKey(u,p);
+    const d=await api("/auth/login",{username:u,pwkey});
+    setAuth(d.token,d.username);closeModal();
+    await pullAndMerge().catch(()=>{});
+  }catch(e){mErr.textContent=e.userMsg||"Giriş yapılamadı. Tekrar dene."}
+  finally{btn.disabled=false;btn.textContent="Giriş yap"}
+}
+async function doSignup(u,p){
+  if(!u.trim()){mErr.textContent="Kullanıcı adını yaz.";return}
+  if(!/^[a-zA-Z0-9_.-]{3,20}$/.test(u.trim())){mErr.textContent="Kullanıcı adı 3-20 karakter; sadece harf, rakam, _ - . kullanabilirsin.";return}
+  if(!p||p.length<8){mErr.textContent="Şifre en az 8 karakter olmalı.";return}
+  const btn=mForm.querySelector(".btn");btn.disabled=true;btn.textContent="İşleniyor…";mErr.textContent="";
+  try{
+    const pwkey=await derivePwKey(u,p);
+    const d=await api("/auth/signup",{username:u,pwkey});
+    setAuth(d.token,d.username);
+    showRecovery(d.recovery_code,true);
+  }catch(e){mErr.textContent=e.userMsg||"Üyelik açılamadı. Tekrar dene."}
+  finally{btn.disabled=false;btn.textContent="Üye ol"}
+}
+async function doRecover(u,c,p){
+  if(!u.trim()||!c.trim()){mErr.textContent="Kullanıcı adı ve kurtarma kodunu doldur.";return}
+  if(!p||p.length<8){mErr.textContent="Yeni şifre en az 8 karakter olmalı.";return}
+  const btn=mForm.querySelector(".btn");btn.disabled=true;btn.textContent="İşleniyor…";mErr.textContent="";
+  try{
+    const newkey=await derivePwKey(u,p);
+    const d=await api("/auth/recover",{username:u,recovery_code:c,new_pwkey:newkey});
+    setAuth(d.token,d.username);
+    showRecovery(d.recovery_code,false);
+  }catch(e){mErr.textContent=e.userMsg||"Şifre sıfırlanamadı."}
+  finally{btn.disabled=false;btn.textContent="Şifreyi sıfırla"}
+}
+function showRecovery(code,isNew){
+  mTitle.textContent=isNew?"Hesabın hazır":"Yeni kurtarma kodun";
+  mSub.textContent="Bu kodu güvenli bir yere kaydet. Şifreni unutursan bu kodla sıfırlarsın. Kod yalnızca şimdi gösterilir.";
+  mTabs.innerHTML="";
+  mForm.innerHTML='<div class="code">'+esc(code)+'</div>'+
+    '<div class="note">Kodu bir yere not et (kağıt, şifre yöneticisi vb.). Kaybedersen hesabını kurtaramazsın.</div>'+
+    '<div class="ctl"><button class="fill" type="button" id="copyCode">Kopyala</button><button type="button" id="doneCode">Kaydettim, devam</button></div>';
+  $("copyCode").onclick=async()=>{try{await navigator.clipboard.writeText(code);$("copyCode").textContent="Kopyalandı"}catch(e){}};
+  $("doneCode").onclick=async()=>{closeModal();await pullAndMerge().catch(()=>{})};
+}
+
+// ---------- Sohbet (geri kalanı aynı) ----------
 function load(){
   try{const c=JSON.parse(localStorage.getItem(KEY));if(Array.isArray(c))return c}catch(e){}
   try{const old=JSON.parse(localStorage.getItem("peatai_history_v1"))||[];
@@ -308,7 +428,8 @@ $("export").onclick=()=>{
 };
 renderList();
 if(chats.length)showChat(chats.slice().sort((a,b)=>b.ts-a.ts)[0]);else showEmpty();
-drawAcct();initGoogle();if(token)pullAndMerge().catch(()=>{});
+drawAcct();
+if(token)pullAndMerge().catch(()=>{});
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 </script>
 </body>
