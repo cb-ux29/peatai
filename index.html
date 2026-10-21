@@ -50,7 +50,7 @@ main{display:flex;flex-direction:column;min-width:0;min-height:0}
 .a{font-family:Georgia,serif;font-size:1.06rem;line-height:1.65;white-space:pre-wrap;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--moss);border-radius:10px;padding:14px 16px}
 .a.err{border-left-color:var(--err);color:var(--err);font-family:inherit;font-size:.98rem}
 .src{font-size:.88rem;color:var(--muted);margin-top:8px}
-.src ul{margin:4px 0;padding-left:20px}
+.src ul,.src ol{margin:4px 0;padding-left:22px}
 .src a{color:var(--moss)}
 .meta{font-size:.78rem;color:var(--muted);margin-top:4px}
 .retry{margin-top:8px;background:none;border:1px solid var(--moss);color:var(--moss);border-radius:8px;padding:6px 12px;font-weight:600}
@@ -93,6 +93,13 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
 .ctl{display:flex;gap:8px;margin-top:8px}
 .ctl button{flex:1;padding:9px;border-radius:10px;border:1px solid var(--moss);background:none;color:var(--moss);font-weight:600}
 .ctl button.fill{background:var(--moss);color:#fff}
+.memlist{list-style:none;margin:0 0 10px;padding:0;max-height:280px;overflow-y:auto}
+.memlist li{display:flex;align-items:flex-start;gap:6px;padding:7px 8px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;font-size:.9rem}
+.memlist li .txt{flex:1;min-width:0}
+.memlist li button{background:none;border:0;color:var(--err);font-size:1.05rem;padding:0 4px;line-height:1}
+.memadd{display:flex;gap:8px}
+.memadd input{flex:1;min-width:0;font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+.btn.sm{width:auto;padding:10px 16px;margin-top:0}
 @media (max-width:760px){
   .app{grid-template-columns:1fr;grid-template-rows:auto 1fr}
   aside{position:fixed;inset:0 auto 0 0;width:84%;max-width:320px;transform:translateX(-100%);transition:transform .2s;z-index:6}
@@ -115,7 +122,7 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
       <button id="export" type="button">Dışa aktar</button>
       <button id="clear" type="button">Hepsini sil</button>
     </div>
-    <p class="priv">Giriş yapmazsan sohbetlerin yalnızca bu tarayıcıda saklanır. Üye olursan kullanıcı adın ve sohbetlerin sunucuda saklanır; istediğin an "Hesabımı sil" ile kaldırabilirsin. Kurtarma kodunu güvenli bir yere kaydet; kaybedersen hesabını kurtaramazsın.</p>
+    <p class="priv">Giriş yapmazsan sohbetlerin yalnızca bu tarayıcıda saklanır. Üye olursan kullanıcı adın, sohbetlerin ve AI'ın senin hakkında öğrendiği bilgiler sunucuda saklanır; "Hafızam" bölümünden görebilir ve silebilirsin, "Hesabımı sil" ile hepsini kaldırabilirsin. Kurtarma kodunu güvenli bir yere kaydet; kaybedersen hesabını kurtaramazsın.</p>
   </aside>
   <div id="scrim"></div>
 
@@ -141,6 +148,19 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
     <div class="tabs" id="mTabs"></div>
     <form id="mForm" novalidate></form>
     <p class="ferr" id="mErr"></p>
+  </div>
+</div>
+
+<div class="modal" id="memModal">
+  <div class="card">
+    <h3>Hafızam</h3>
+    <p class="sub2">Yapay zekâ senin hakkında şunları biliyor. İstediğini silebilir ya da kendin ekleyebilirsin.</p>
+    <ul class="memlist" id="memList"></ul>
+    <div class="memadd">
+      <input id="memInput" type="text" placeholder="Ör: Her gün 100 mg aspirin kullanıyorum" maxlength="200">
+      <button class="btn sm" id="memAdd" type="button">Ekle</button>
+    </div>
+    <p class="ferr" id="memErr"></p>
   </div>
 </div>
 
@@ -200,9 +220,10 @@ async function delAccount(){
 function drawAcct(){
   const a=$("acct");
   if(token){
-    a.innerHTML='<div class="aw">'+esc(name)+'</div><div class="foot"><button id="logout" type="button">Çıkış yap</button><button id="delacc" type="button">Hesabımı sil</button></div>';
+    a.innerHTML='<div class="aw">'+esc(name)+'</div><div class="foot"><button id="logout" type="button">Çıkış yap</button><button id="delacc" type="button">Hesabımı sil</button></div><button class="authbtn" id="btnMem" type="button">Hafızam (AI neler biliyor)</button>';
     $("logout").onclick=()=>logout(true);
     $("delacc").onclick=delAccount;
+    $("btnMem").onclick=openMem;
   }else{
     a.innerHTML='<div class="aw">Sohbetlerine her yerden ulaşmak için giriş yap.</div>'+
       '<button class="authbtn primary" id="btnLogin" type="button">Giriş yap</button>'+
@@ -309,6 +330,33 @@ function showRecovery(code,isNew){
   $("doneCode").onclick=async()=>{closeModal();await pullAndMerge().catch(()=>{})};
 }
 
+// ---------- Hafıza ----------
+const memModal=$("memModal"),memList=$("memList"),memInput=$("memInput"),memErr=$("memErr");
+let memFacts=[];
+async function openMem(){
+  memModal.classList.add("on");memErr.textContent="";memList.innerHTML='<li class="none">Yükleniyor…</li>';
+  try{
+    const d=await api("/facts/list");
+    memFacts=(d.facts||[]).map(f=>f.fact);
+    renderMem();
+  }catch(e){memErr.textContent=e.userMsg||"Yüklenemedi."}
+}
+function closeMem(){memModal.classList.remove("on")}
+function renderMem(){
+  if(!memFacts.length){memList.innerHTML='<li class="none">Henüz bir şey yok. Sohbet ettikçe AI senin hakkında kalıcı şeyleri öğrenir, ya da üstteki kutuya kendin yazıp ekleyebilirsin.</li>';return}
+  memList.innerHTML=memFacts.map((f,i)=>'<li><span class="txt">'+esc(f)+'</span><button data-mi="'+i+'" type="button" aria-label="Sil">×</button></li>').join("");
+  memList.querySelectorAll("[data-mi]").forEach(b=>b.onclick=async()=>{
+    const i=Number(b.dataset.mi),f=memFacts[i];
+    if(!confirm("Bu bilgi silinsin mi?"))return;
+    try{await api("/facts/delete",{fact:f});memFacts=memFacts.filter((_,j)=>j!==i);renderMem()}catch(e){memErr.textContent=e.userMsg||"Silinemedi."}
+  });
+}
+memModal.addEventListener("click",ev=>{if(ev.target===memModal)closeMem()});
+$("memAdd").onclick=async()=>{
+  const f=memInput.value.trim();if(!f){memErr.textContent="Bir şey yaz.";return}
+  try{await api("/facts/add",{fact:f});memFacts.push(f);memInput.value="";memErr.textContent="";renderMem()}catch(e){memErr.textContent=e.userMsg||"Eklenemedi."}
+};
+
 // ---------- Sohbet (geri kalanı aynı) ----------
 function load(){
   try{const c=JSON.parse(localStorage.getItem(KEY));if(Array.isArray(c))return c}catch(e){}
@@ -324,7 +372,7 @@ const cur=()=>chats.find(c=>c.id===current)||null;
 function srcHtml(s){
   const ok=(s||[]).filter(x=>x.url&&x.url.indexOf("https://")===0);
   if(!ok.length)return '';
-  return '<div class="src"><b>Kaynaklar</b><ul>'+ok.map(x=>'<li><a href="'+esc(x.url)+'" target="_blank" rel="noopener">'+esc(x.title)+'</a></li>').join("")+'</ul></div>';
+  return '<div class="src"><b>Kaynaklar</b><ol>'+ok.map(x=>'<li><a href="'+esc(x.url)+'" target="_blank" rel="noopener">'+esc(x.title)+'</a></li>').join("")+'</ol></div>';
 }
 function entryHtml(e){
   return '<article class="entry"><div class="q">'+esc(e.q)+'</div><div class="a">'+fmt(e.a)+'</div>'+srcHtml(e.sources)+'<div class="meta">'+when(e.ts)+'</div></article>';
@@ -376,7 +424,8 @@ async function ask(q){
   const ctrl=new AbortController(),t2=setTimeout(()=>ctrl.abort(),120000);
   try{
     const hist=chat.msgs.slice(-3).map(e=>({q:e.q,a:String(e.a).slice(0,600)}));
-    const r=await fetch(API+"/ask-peat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:q,history:hist}),signal:ctrl.signal});
+    const h={"Content-Type":"application/json"};if(token)h.Authorization="Bearer "+token;
+    const r=await fetch(API+"/ask-peat",{method:"POST",headers:h,body:JSON.stringify({question:q,history:hist}),signal:ctrl.signal});
     if(!r.ok){let em="";try{em=(await r.json()).error||""}catch(x){}const er=new Error("HTTP "+r.status);er.userMsg=em;throw er}
     const d=await r.json();
     const m={id:Date.now(),q:q,a:d.answer_tr||"Boş yanıt geldi, soruyu farklı yazmayı dene.",sources:d.sources||[],ts:Date.now()};
