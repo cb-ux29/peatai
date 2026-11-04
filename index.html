@@ -71,6 +71,10 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
 .authbtn{display:block;width:100%;background:var(--soil2);color:var(--sand);border:1px solid #54443A;border-radius:10px;padding:9px;margin-bottom:8px;font-weight:600}
 .authbtn:hover{background:#4A3C30}
 .authbtn.primary{background:var(--moss);color:#fff;border-color:var(--moss)}
+.tip{margin-top:14px;padding:10px 14px;border-left:3px solid var(--moss);background:rgba(255,255,255,.78);border-radius:8px;font-family:Georgia,serif;font-size:.98rem;line-height:1.55;color:var(--ink);max-width:560px;animation:tipin .5s ease}
+.tipk{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:.74rem;color:var(--muted);margin-bottom:3px}
+@keyframes tipin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.tip{animation:none}}
 #scrim{display:none}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:20;padding:16px}
 .modal.on{display:flex}
@@ -408,6 +412,21 @@ async function aiTitle(chat,m){
   }catch(e){}
 }
 
+const TIPS=[
+"Peat'e göre sağlığın temeli enerjidir: hücre ne kadar verimli enerji üretirse sistem o kadar dayanıklı olur.",
+"Peat'in bakışında tiroid hormonu (T3), metabolizma hızının ana ayarıdır.",
+"Peat, stres altında kortizol, serotonin ve histamin gibi aracıların enerji kaybını derinleştirdiğini savunur.",
+"Progesteron, Peat'te östrojenin aşırı etkisini dengeleyen koruyucu bir hormon olarak anlatılır.",
+"Çoklu doymamış yağlar (PUFA), Peat'e göre hücre enerjisini yoran ve yıpratan bir yük sayılır.",
+"Peat, karbondioksiti (CO2) bir atık olarak değil, hücreleri koruyan değerli bir molekül olarak görür.",
+"Meyve ve meyve suyu gibi kolay sindirilen şekerler, Peat'in beslenme anlayışında temel enerji kaynaklarındandır.",
+"Süt ve peynir, Peat'in önerilerinde kalsiyum ve kaliteli protein kaynağı olarak sık geçer.",
+"Jelatin gibi kolajen kaynakları, Peat'te kas etinin amino asit dengesini tamamlayan seçenek olarak anılır.",
+"Peat'in yazılarında aspirin gibi prostaglandin etkisini azaltan maddeler sıkça tartışılır.",
+"Peat, ışığı ve sıcaklığı da metabolizmanın doğal destekçileri olarak ele alır.",
+"Peat'e göre kalsiyum, fosfor ve magnezyum dengesi kas ve sinir işleyişi için önemlidir.",
+"Peat, hastalığı çoğu zaman tek bir nedenden çok enerji eksikliğinin zincirleme etkileri olarak anlatır."
+];
 async function ask(q){
   if(busy||!q.trim())return;
   busy=true;sendBtn.disabled=true;
@@ -420,6 +439,10 @@ async function ask(q){
   const wait=document.createElement("div");
   wait.innerHTML='<span class="dots"><i></i><i></i><i></i></span><div class="hint">Cevap hazırlanıyor…</div>';
   art.appendChild(wait);c.appendChild(art);art.scrollIntoView({block:"nearest"});
+  const tip=document.createElement("div");tip.className="tip";wait.appendChild(tip);
+  let ti=Math.floor(Math.random()*TIPS.length);
+  const showTip=()=>{tip.style.animation="none";void tip.offsetWidth;tip.style.animation="";tip.innerHTML='<div class="tipk">Bu sırada: Peat\'in temel fikirlerinden (özet)</div>'+esc(TIPS[ti%TIPS.length]);ti++};
+  showTip();const t3=setInterval(showTip,7000);
   const t1=setTimeout(()=>{wait.querySelector(".hint").textContent="Yoğunluk olabilir, cevap biraz daha uzun sürebilir."},8000);
   const ctrl=new AbortController(),t2=setTimeout(()=>ctrl.abort(),120000);
   try{
@@ -446,7 +469,7 @@ async function ask(q){
     const b=document.createElement("button");b.className="retry";b.type="button";b.textContent="Tekrar dene";
     b.onclick=()=>{art.remove();ask(q)};art.appendChild(b);
   }finally{
-    clearTimeout(t1);clearTimeout(t2);busy=false;sendBtn.disabled=false;
+    clearTimeout(t1);clearTimeout(t2);clearInterval(t3);busy=false;sendBtn.disabled=false;
   }
 }
 
