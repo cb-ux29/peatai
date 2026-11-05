@@ -6,7 +6,7 @@
 <title>PeatAI: Ray Peat Soru-Cevap</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#211812">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23F6C04A%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23D9661C%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2216%22%20fill%3D%22%232A1E15%22/%3E%3Cpath%20d%3D%22M32%207v6M32%2051v6M7%2032h6M51%2032h6M14.3%2014.3l4.2%204.2M45.5%2045.5l4.2%204.2M14.3%2049.7l4.2-4.2M45.5%2018.5l4.2-4.2%22%20stroke%3D%22%23F2B33D%22%20stroke-width%3D%223.4%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2214.5%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2232%22%20y%3D%2239%22%20text-anchor%3D%22middle%22%20font-family%3D%22Georgia%2Cserif%22%20font-size%3D%2219%22%20font-weight%3D%22700%22%20fill%3D%22%232A1E15%22%3EP%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23F6C04A%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23D9661C%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2216%22%20fill%3D%22%232A1E15%22/%3E%3Cpath%20d%3D%22M32%207v6M32%2051v6M7%2032h6M51%2032h6M14.3%2014.3l4.2%204.2M45.5%2045.5l4.2%204.2M14.3%2049.7l4.2-4.2M45.5%2018.5l4.2-4.2%22%20stroke%3D%22%23F2B33D%22%20stroke-width%3D%223.4%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2214.5%22%20fill%3D%22url%28%23g%29%22/%3E%3Ccircle%20cx%3D%2227%22%20cy%3D%2227%22%20r%3D%224.5%22%20fill%3D%22%23FFE3A3%22%20opacity%3D%22.55%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
@@ -45,7 +45,11 @@ aside{background:linear-gradient(180deg,#261B14 0%,var(--soil) 60%);color:var(--
 .foot{display:flex;gap:8px}
 .foot button{flex:1;background:none;color:var(--sand);border:1px solid var(--soil3);border-radius:10px;padding:8px;font-size:.82rem}
 .foot button:hover{background:var(--soil2)}
-.priv{font-size:.68rem;opacity:.5;margin:0;line-height:1.45}
+.notesbtn{background:none;border:0;color:var(--sand);opacity:.65;font-size:.78rem;text-decoration:underline;text-underline-offset:3px;padding:2px 4px;align-self:flex-start}
+.notesbtn:hover{opacity:1}
+.notes h4{font-size:.78rem;letter-spacing:1px;text-transform:uppercase;color:var(--moss);margin:14px 0 4px}
+.notes p,.priv{font-size:.9rem;line-height:1.55;color:var(--ink);margin:0}
+.notes .btn{margin-top:18px}
 main{display:flex;flex-direction:column;min-width:0;min-height:0}
 .top{display:none;align-items:center;gap:10px;padding:10px 14px;background:var(--soil);color:var(--sand)}
 .top button{background:none;border:1px solid var(--soil3);color:inherit;border-radius:9px;padding:6px 11px;font-size:1.05rem;line-height:1}
@@ -85,6 +89,8 @@ textarea::placeholder{color:#9A8D7B;white-space:nowrap;overflow:hidden;text-over
 .send:hover{background:var(--moss-d)}
 .send:disabled{opacity:.5;cursor:not-allowed}
 .disc{font-size:.72rem;color:var(--muted);text-align:center;margin:8px 0 0}
+.disclink{background:none;border:0;color:var(--muted);font-size:.74rem;text-decoration:underline;text-underline-offset:3px;padding:2px 6px}
+.disclink:hover{color:var(--moss)}
 textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
 .acct{border-top:1px solid var(--soil3);padding-top:12px}
 .aw{font-size:.8rem;opacity:.8;margin-bottom:8px;overflow-wrap:anywhere}
@@ -144,7 +150,7 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><linearGradient id="lgSun" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F6C04A"/><stop offset="1" stop-color="#D9661C"/></linearGradient><symbol id="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#2A1E15"/><rect x="1" y="1" width="62" height="62" rx="15" fill="none" stroke="#4A3828" stroke-width="2"/><path d="M32 7v6M32 51v6M7 32h6M51 32h6M14.3 14.3l4.2 4.2M45.5 45.5l4.2 4.2M14.3 49.7l4.2-4.2M45.5 18.5l4.2-4.2" stroke="#F2B33D" stroke-width="3.4" stroke-linecap="round"/><circle cx="32" cy="32" r="14.5" fill="url(#lgSun)"/><text x="32" y="39" text-anchor="middle" font-family="Fraunces,Georgia,serif" font-size="19" font-weight="700" fill="#2A1E15">P</text></symbol></defs></svg>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><linearGradient id="lgSun" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F6C04A"/><stop offset="1" stop-color="#D9661C"/></linearGradient><symbol id="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#2A1E15"/><rect x="1" y="1" width="62" height="62" rx="15" fill="none" stroke="#4A3828" stroke-width="2"/><path d="M32 7v6M32 51v6M7 32h6M51 32h6M14.3 14.3l4.2 4.2M45.5 45.5l4.2 4.2M14.3 49.7l4.2-4.2M45.5 18.5l4.2-4.2" stroke="#F2B33D" stroke-width="3.4" stroke-linecap="round"/><circle cx="32" cy="32" r="14.5" fill="url(#lgSun)"/><circle cx="27" cy="27" r="4.5" fill="#FFE3A3" opacity=".55"/></symbol></defs></svg>
 <div class="app">
   <aside id="side">
     <div class="brandrow"><svg class="logo" width="38" height="38" aria-hidden="true"><use href="#logo"/></svg><div><div class="brand">PeatAI</div><div class="sub">Ray Peat'in bakışıyla</div></div></div>
@@ -157,7 +163,7 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
       <button id="export" type="button">Dışa aktar</button>
       <button id="clear" type="button">Hepsini sil</button>
     </div>
-    <p class="priv">Giriş yapmazsan sohbetlerin yalnızca bu tarayıcıda saklanır. Üye olursan kullanıcı adın, sohbetlerin ve AI'ın senin hakkında öğrendiği bilgiler sunucuda saklanır; "Hafızam" bölümünden görebilir ve silebilirsin, "Hesabımı sil" ile hepsini kaldırabilirsin. Kurtarma kodunu güvenli bir yere kaydet; kaybedersen hesabını kurtaramazsın.</p>
+    <button class="notesbtn" id="btnNotes" type="button">Güvenlik notları</button>
   </aside>
   <div id="scrim"></div>
 
@@ -171,7 +177,7 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
           <button class="send" id="send" type="submit">Gönder</button>
         </div>
       </form>
-      <p class="disc">Kişisel sağlık bilgilerini yazma. Yanıtlar yapay zekâ ile üretilir ve tıbbi tavsiye yerine geçmez.</p>
+      <p class="disc"><button class="disclink" id="btnNotes2" type="button">Güvenlik notları</button></p>
     </div>
   </main>
 </div>
@@ -183,6 +189,17 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
     <div class="tabs" id="mTabs"></div>
     <form id="mForm" novalidate></form>
     <p class="ferr" id="mErr"></p>
+  </div>
+</div>
+
+<div class="modal" id="notesModal">
+  <div class="card notes">
+    <h3>Güvenlik notları</h3>
+    <h4>Sağlık</h4>
+    <p>Kişisel sağlık bilgilerini yazma. Yanıtlar yapay zekâ ile üretilir ve tıbbi tavsiye yerine geçmez.</p>
+    <h4>Gizlilik ve hesap</h4>
+    <p class="priv">Giriş yapmazsan sohbetlerin yalnızca bu tarayıcıda saklanır. Üye olursan kullanıcı adın, sohbetlerin ve AI'ın senin hakkında öğrendiği bilgiler sunucuda saklanır; "Hafızam" bölümünden görebilir ve silebilirsin, "Hesabımı sil" ile hepsini kaldırabilirsin. Kurtarma kodunu güvenli bir yere kaydet; kaybedersen hesabını kurtaramazsın.</p>
+    <button class="btn" id="notesClose" type="button">Tamam</button>
   </div>
 </div>
 
@@ -387,6 +404,12 @@ function renderMem(){
   });
 }
 memModal.addEventListener("click",ev=>{if(ev.target===memModal)closeMem()});
+const notesModal=$("notesModal");
+const openNotes=()=>{closeSide();notesModal.classList.add("on");$("notesClose").focus()};
+$("btnNotes").onclick=openNotes;$("btnNotes2").onclick=openNotes;
+$("notesClose").onclick=()=>notesModal.classList.remove("on");
+notesModal.addEventListener("click",ev=>{if(ev.target===notesModal)notesModal.classList.remove("on")});
+document.addEventListener("keydown",ev=>{if(ev.key==="Escape")notesModal.classList.remove("on")});
 $("memAdd").onclick=async()=>{
   const f=memInput.value.trim();if(!f){memErr.textContent="Bir şey yaz.";return}
   try{await api("/facts/add",{fact:f});memFacts.push(f);memInput.value="";memErr.textContent="";renderMem()}catch(e){memErr.textContent=e.userMsg||"Eklenemedi."}
