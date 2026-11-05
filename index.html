@@ -6,6 +6,7 @@
 <title>PeatAI: Ray Peat Soru-Cevap</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#211812">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("peatai_theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}catch(e){}</script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23F6C04A%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23D9661C%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2216%22%20fill%3D%22%232A1E15%22/%3E%3Cpath%20d%3D%22M32%207v6M32%2051v6M7%2032h6M51%2032h6M14.3%2014.3l4.2%204.2M45.5%2045.5l4.2%204.2M14.3%2049.7l4.2-4.2M45.5%2018.5l4.2-4.2%22%20stroke%3D%22%23F2B33D%22%20stroke-width%3D%223.4%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2214.5%22%20fill%3D%22url%28%23g%29%22/%3E%3Ccircle%20cx%3D%2227%22%20cy%3D%2227%22%20r%3D%224.5%22%20fill%3D%22%23FFE3A3%22%20opacity%3D%22.55%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -67,11 +68,11 @@ main{display:flex;flex-direction:column;min-width:0;min-height:0}
 .entry{margin-bottom:30px}
 .q{margin:0 0 10px auto;width:fit-content;max-width:85%;background:var(--soil2);color:var(--sand);padding:10px 15px;border-radius:18px 18px 4px 18px;font-weight:500;font-size:1rem;box-shadow:var(--shadow);white-space:pre-wrap;overflow-wrap:anywhere}
 .a{font-family:Georgia,"Times New Roman",serif;font-size:1.06rem;line-height:1.7;white-space:pre-wrap;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--moss);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow);overflow-wrap:anywhere}
-.a b{font-family:var(--serif);color:var(--moss-d);font-weight:700}
+.a b{font-family:var(--serif);color:var(--head);font-weight:700}
 .a.err{border-left-color:var(--err);color:var(--err);font-family:inherit;font-size:.98rem}
-.src{font-size:.86rem;color:var(--muted);margin-top:10px;padding:10px 14px;background:rgba(255,252,246,.75);border:1px dashed var(--line);border-radius:12px}
+.src{font-size:.86rem;color:var(--muted);margin-top:10px;padding:10px 14px;background:var(--soft);border:1px dashed var(--line);border-radius:12px}
 .src ul,.src ol{margin:4px 0;padding-left:22px}
-.src a{color:var(--moss)}
+.src a{color:var(--link)}
 .meta{font-size:.74rem;color:var(--muted);margin-top:6px}
 .retry{margin-top:8px;background:none;border:1px solid var(--moss);color:var(--moss);border-radius:9px;padding:6px 12px;font-weight:600}
 .dots i{display:inline-block;width:7px;height:7px;margin-right:4px;border-radius:50%;background:var(--moss);animation:b 1s infinite}
@@ -79,7 +80,7 @@ main{display:flex;flex-direction:column;min-width:0;min-height:0}
 @keyframes b{0%,80%,100%{opacity:.25}40%{opacity:1}}
 @media (prefers-reduced-motion:reduce){.dots i{animation:none}}
 .hint{font-size:.86rem;color:var(--muted);margin-top:6px}
-.comp{padding:10px 20px 12px;background:linear-gradient(180deg,rgba(246,239,227,0),var(--bg) 35%)}
+.comp{padding:8px 20px 12px;background:linear-gradient(180deg,transparent,var(--bg) 35%)}
 .rowform{display:flex;gap:8px;align-items:flex-end;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:7px 7px 7px 8px;box-shadow:var(--shadow)}
 .rowform:focus-within{border-color:var(--moss)}
 textarea{flex:1;resize:none;font:inherit;background:transparent;color:var(--ink);border:0;border-radius:12px;padding:9px 8px;min-height:42px;max-height:140px}
@@ -98,7 +99,7 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
 .authbtn:hover{background:var(--soil3)}
 .authbtn.primary{background:var(--sand);color:var(--soil);border-color:var(--sand)}
 .authbtn.primary:hover{background:#fff}
-.tip{margin-top:14px;padding:11px 15px;border-left:3px solid var(--sun);background:rgba(255,252,246,.9);border-radius:10px;font-family:Georgia,serif;font-size:.98rem;line-height:1.55;color:var(--ink);max-width:560px;box-shadow:var(--shadow);animation:tipin .5s ease}
+.tip{margin-top:14px;padding:11px 15px;border-left:3px solid var(--sun);background:var(--soft);border-radius:10px;font-family:Georgia,serif;font-size:.98rem;line-height:1.55;color:var(--ink);max-width:560px;box-shadow:var(--shadow);animation:tipin .5s ease}
 .caret{display:inline-block;width:.45em;height:1.05em;background:var(--moss);margin-left:2px;vertical-align:-3px;animation:caretb 1s steps(2,start) infinite}
 @keyframes caretb{to{visibility:hidden}}
 @media (prefers-reduced-motion:reduce){.caret{animation:none}}
@@ -116,25 +117,66 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
 .tabs button.on{background:var(--card);color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .field{margin-bottom:10px}
 .field label{display:block;font-size:.8rem;margin-bottom:4px;color:var(--muted)}
-.field input{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+.field input,.field select{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--input);color:var(--ink)}
 .btn{width:100%;padding:11px;border:0;border-radius:11px;background:var(--moss);color:#fff;font-weight:700;margin-top:4px}
 .btn:hover{background:var(--moss-d)}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 .linkrow{text-align:center;margin-top:10px}
 .link{background:none;border:0;color:var(--moss);font-size:.85rem;text-decoration:underline;cursor:pointer}
 .ferr{color:var(--err);font-size:.84rem;margin-top:10px;white-space:pre-wrap}
-.code{background:#F6EBD8;border:1px dashed var(--moss);border-radius:10px;padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:1.05rem;text-align:center;letter-spacing:.5px;margin:10px 0;word-break:break-all}
+.code{background:var(--soft);border:1px dashed var(--moss);border-radius:10px;padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:1.05rem;text-align:center;letter-spacing:.5px;margin:10px 0;word-break:break-all}
 .note{font-size:.8rem;color:var(--muted)}
 .ctl{display:flex;gap:8px;margin-top:8px}
 .ctl button{flex:1;padding:9px;border-radius:10px;border:1px solid var(--moss);background:none;color:var(--moss);font-weight:600}
 .ctl button.fill{background:var(--moss);color:#fff}
 .memlist{list-style:none;margin:0 0 10px;padding:0;max-height:280px;overflow-y:auto}
-.memlist li{display:flex;align-items:flex-start;gap:6px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px;font-size:.9rem;background:#fff}
+.memlist li{display:flex;align-items:flex-start;gap:6px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px;font-size:.9rem;background:var(--input)}
 .memlist li .txt{flex:1;min-width:0}
 .memlist li button{background:none;border:0;color:var(--err);font-size:1.05rem;padding:0 4px;line-height:1}
 .memadd{display:flex;gap:8px}
-.memadd input{flex:1;min-width:0;font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+.memadd input{flex:1;min-width:0;font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--input);color:var(--ink)}
 .btn.sm{width:auto;padding:10px 16px;margin-top:0}
+
+:root{--head:#93450F;--link:#B05418;--soft:rgba(255,252,246,.85);--input:#fff;--qbg:var(--soil2)}
+:root[data-theme="dark"]{--soil:#130D09;--soil2:#21180F;--soil3:#35281D;--sand:#EFE3CF;--bg:#1A140F;--card:#251C15;--ink:#EDE2D0;--muted:#A99A88;--line:#3B2F25;--moss:#B4591B;--moss-d:#C96A26;--shadow:0 1px 2px rgba(0,0,0,.35),0 8px 24px rgba(0,0,0,.35);--head:#F0A25E;--link:#F0A25E;--soft:rgba(37,28,21,.92);--input:#1E1711;--qbg:#3B2B1E}
+:root[data-theme="dark"] #feed{background-color:#1A140F}
+:root[data-theme="dark"] .authbtn.primary{background:#EFE3CF;color:#1A140F}
+.q{background:var(--qbg)!important}
+.themebtn{margin-left:auto;background:var(--soil2);border:1px solid var(--soil3);color:var(--sand);border-radius:10px;width:36px;height:36px;font-size:1rem;line-height:1}
+.themebtn:hover{background:var(--soil3)}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tool{background:var(--soil2);color:var(--sand);border:1px solid var(--soil3);border-radius:10px;padding:9px 6px;font-size:.84rem;font-weight:600}
+.tool:hover{background:var(--soil3)}
+.modebar{display:flex;justify-content:flex-end;margin-bottom:6px}
+.seg{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px;box-shadow:var(--shadow)}
+.seg button{border:0;background:none;color:var(--muted);font-size:.78rem;font-weight:600;padding:4px 12px;border-radius:999px}
+.seg button.on{background:var(--moss);color:#fff}
+.acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.acts button{background:var(--card);border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:4px 11px;font-size:.78rem;font-weight:600}
+.acts button:hover{border-color:var(--moss);color:var(--link)}
+.fu{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin-top:12px}
+.fuk{font-size:.72rem;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+.fuq{background:var(--soft);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:7px 12px;font-size:.9rem;text-align:left}
+.fuq::before{content:"↳ ";color:var(--link);font-weight:700}
+.fuq:hover{border-color:var(--moss)}
+.card.wide{max-width:560px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ttab{width:100%;border-collapse:collapse;font-size:.84rem;margin-top:6px}
+.ttab th{text-align:left;color:var(--muted);font-weight:600;font-size:.74rem;padding:5px 4px;border-bottom:1px solid var(--line)}
+.ttab td{padding:6px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+.ttab td.x{width:24px;text-align:right}
+.ttab td.x button{background:none;border:0;color:var(--err);font-size:1rem;padding:0 2px}
+.tstat{display:flex;gap:8px;margin:12px 0 4px}
+.tstat div{flex:1;background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.tstat b{display:block;font-family:var(--serif);font-size:1.25rem}
+.tstat span{font-size:.72rem;color:var(--muted)}
+.tscroll{max-height:240px;overflow-y:auto}
+.fres{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:10px;background:var(--soft)}
+.fres h4{margin:0 0 6px;font-family:var(--serif);font-size:1.05rem;display:flex;align-items:center;gap:8px}
+.badge{font-family:system-ui,sans-serif;font-size:.72rem;font-weight:700;border-radius:999px;padding:3px 9px;color:#fff}
+.b-uygun{background:#3F7A4F}.b-ölçülü{background:#B07A12}.b-kaçın{background:#A12C2C}.b-bilinmiyor{background:#777}
+.fres p{margin:0 0 6px;font-size:.9rem}
+.fres .link{padding:0}
 @media (max-width:760px){
   .app{grid-template-columns:1fr;grid-template-rows:auto 1fr}
   aside{position:fixed;inset:0 auto 0 0;width:86%;max-width:320px;transform:translateX(-100%);transition:transform .2s;z-index:6}
@@ -153,8 +195,9 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><linearGradient id="lgSun" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F6C04A"/><stop offset="1" stop-color="#D9661C"/></linearGradient><symbol id="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#2A1E15"/><rect x="1" y="1" width="62" height="62" rx="15" fill="none" stroke="#4A3828" stroke-width="2"/><path d="M32 7v6M32 51v6M7 32h6M51 32h6M14.3 14.3l4.2 4.2M45.5 45.5l4.2 4.2M14.3 49.7l4.2-4.2M45.5 18.5l4.2-4.2" stroke="#F2B33D" stroke-width="3.4" stroke-linecap="round"/><circle cx="32" cy="32" r="14.5" fill="url(#lgSun)"/><circle cx="27" cy="27" r="4.5" fill="#FFE3A3" opacity=".55"/></symbol></defs></svg>
 <div class="app">
   <aside id="side">
-    <div class="brandrow"><svg class="logo" width="38" height="38" aria-hidden="true"><use href="#logo"/></svg><div><div class="brand">PeatAI</div><div class="sub">Ray Peat'in bakışıyla</div></div></div>
+    <div class="brandrow"><svg class="logo" width="38" height="38" aria-hidden="true"><use href="#logo"/></svg><div><div class="brand">PeatAI</div><div class="sub">Ray Peat'in bakışıyla</div></div><button class="themebtn" id="theme" type="button" aria-label="Koyu / açık tema">☾</button></div>
     <button class="new" id="new" type="button"><span class="plus" aria-hidden="true">+</span>Yeni sohbet</button>
+    <div class="tools"><button class="tool" id="btnTrack" type="button">Günlük takip</button><button class="tool" id="btnFood" type="button">Besin sorgula</button></div>
     <div class="label">Sohbetler</div>
     <input id="search" type="search" placeholder="Sohbetlerde ara…" aria-label="Sohbetlerde ara">
     <ul id="list"></ul>
@@ -172,6 +215,7 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
     <div id="feed" aria-live="polite"></div>
     <div class="comp">
       <form id="form">
+        <div class="col modebar"><div class="seg" role="group" aria-label="Cevap uzunluğu"><button type="button" data-mode="kisa">Kısa</button><button type="button" data-mode="detayli">Detaylı</button></div></div>
         <div class="col rowform">
           <textarea id="q" rows="1" maxlength="2000" placeholder="Sorunu yaz… (Enter ile gönder)" aria-label="Sorun"></textarea>
           <button class="send" id="send" type="submit">Gönder</button>
@@ -189,6 +233,39 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
     <div class="tabs" id="mTabs"></div>
     <form id="mForm" novalidate></form>
     <p class="ferr" id="mErr"></p>
+  </div>
+</div>
+
+<div class="modal" id="trackModal">
+  <div class="card wide">
+    <h3>Günlük takip</h3>
+    <p class="sub2">Peat metabolizmayı özellikle nabız ve vücut ısısıyla izlemeyi önerir. Sabah uyanınca ve öğleden sonra ölçüp buraya yaz.</p>
+    <form id="trackForm" novalidate>
+      <div class="grid2">
+        <div class="field"><label for="t_d">Tarih</label><input id="t_d" type="date"></div>
+        <div class="field"><label for="t_z">Zaman</label><select id="t_z"><option>Sabah</option><option>Öğle</option><option>Akşam</option></select></div>
+        <div class="field"><label for="t_p">Nabız (dakikada)</label><input id="t_p" type="number" inputmode="numeric" min="30" max="200" placeholder="ör. 78"></div>
+        <div class="field"><label for="t_t">Vücut ısısı (°C)</label><input id="t_t" type="number" inputmode="decimal" step="0.1" min="34" max="42" placeholder="ör. 36.6"></div>
+      </div>
+      <div class="field"><label for="t_y">Ne yedim / içtim</label><input id="t_y" type="text" maxlength="160" placeholder="ör. sütlü kahve, portakal suyu, peynir"></div>
+      <div class="field"><label for="t_n">Not (uyku, enerji, ruh hali…)</label><input id="t_n" type="text" maxlength="120" placeholder="ör. iyi uyudum, eller soğuktu"></div>
+      <button class="btn" type="submit">Kaydet</button>
+    </form>
+    <div class="tstat" id="tStat"></div>
+    <div class="tscroll"><table class="ttab" id="tTab"></table></div>
+    <div class="ctl"><button type="button" id="tClose">Kapat</button><button class="fill" type="button" id="tAsk">AI'a yorumlat</button></div>
+    <p class="ferr" id="tErr"></p>
+  </div>
+</div>
+
+<div class="modal" id="foodModal">
+  <div class="card">
+    <h3>Besin sorgula</h3>
+    <p class="sub2">Bir besin yaz; Peat'in bakışıyla uygun mu, ölçülü mü, kaçınılmalı mı söyleyeyim.</p>
+    <form class="memadd" id="foodForm" novalidate><input id="foodIn" type="text" maxlength="60" placeholder="ör. avokado, pirinç, bal"><button class="btn sm" type="submit">Sorgula</button></form>
+    <p class="ferr" id="foodErr"></p>
+    <div id="foodRes"></div>
+    <div class="ctl"><button type="button" id="foodClose">Kapat</button></div>
   </div>
 </div>
 
@@ -242,7 +319,9 @@ function pushChat(c){if(token)api("/chats/sync",{chats:[ser(c)]}).catch(()=>{})}
 
 async function pullAndMerge(){
   const d=await api("/chats/list");
-  const remote=(d.chats||[]).map(r=>{let m=[];try{m=JSON.parse(r.data)}catch(e){}return{id:Number(r.id)||r.id,title:r.title,ts:r.updated_at,msgs:Array.isArray(m)?m:[]}}).filter(r=>r.msgs.length);
+  const rows=d.chats||[];
+  mergeTrack(rows.find(r=>String(r.id)===TRACK_ID));
+  const remote=rows.filter(r=>String(r.id)!==TRACK_ID).map(r=>{let m=[];try{m=JSON.parse(r.data)}catch(e){}return{id:Number(r.id)||r.id,title:r.title,ts:r.updated_at,msgs:Array.isArray(m)?m:[]}}).filter(r=>r.msgs.length);
   const byId=new Map(chats.map(c=>[String(c.id),c]));
   const rIds=new Set(remote.map(r=>String(r.id)));
   const toPush=[];
@@ -428,12 +507,22 @@ const when=ts=>new Date(ts).toLocaleString("tr-TR",{day:"numeric",month:"short",
 const cur=()=>chats.find(c=>c.id===current)||null;
 
 function srcHtml(s){
-  const ok=(s||[]).filter(x=>x.url&&x.url.indexOf("https://")===0);
+  const ok=(s||[]).filter(x=>x.url&&/^https?:\/\//.test(x.url));
   if(!ok.length)return '';
   return '<div class="src"><b>Kaynaklar</b><ol>'+ok.map(x=>'<li><a href="'+esc(x.url)+'" target="_blank" rel="noopener">'+esc(x.title)+'</a></li>').join("")+'</ol></div>';
 }
-function entryHtml(e){
-  return '<article class="entry"><div class="q">'+esc(e.q)+'</div><div class="a">'+fmt(e.a)+'</div>'+srcHtml(e.sources)+'<div class="meta">'+when(e.ts)+'</div></article>';
+function entryHtml(e,last){
+  const fu=last&&e.f&&e.f.length?'<div class="fu"><span class="fuk">Bunu da sor</span>'+e.f.map(x=>'<button class="fuq" type="button">'+esc(x)+'</button>').join("")+'</div>':'';
+  return '<article class="entry" data-mid="'+esc(e.id)+'"><div class="q">'+esc(e.q)+'</div><div class="a">'+fmt(e.a)+'</div>'+srcHtml(e.sources)+
+    '<div class="acts"><button type="button" data-act="copy">Kopyala</button><button type="button" data-act="share">Paylaş</button>'+(last?'<button type="button" data-act="regen">Yeniden yaz</button>':'')+'</div>'+
+    fu+'<div class="meta">'+when(e.ts)+'</div></article>';
+}
+// Cevabın sonundaki "@@TAKIP: a | b | c" satırını ayırır
+function splitFU(t){
+  t=String(t||"");const i=t.indexOf("@@");
+  if(i<0)return{a:t.replace(/@+\s*$/,""),f:[]};
+  const f=t.slice(i).replace(/^@@\s*TAKIP\s*:?/i,"").split("|").map(x=>x.trim().replace(/^[-*•\d.)\s]+/,"")).filter(x=>x.length>3&&x.length<140).slice(0,3);
+  return{a:t.slice(0,i).trim(),f};
 }
 function showEmpty(){
   current=null;ttl.textContent="PeatAI";
@@ -443,7 +532,7 @@ function showEmpty(){
 }
 function showChat(c){
   current=c.id;ttl.textContent=c.title;
-  feed.innerHTML='<div class="col">'+c.msgs.map(entryHtml).join("")+'</div>';
+  feed.innerHTML='<div class="col">'+c.msgs.map((m,i)=>entryHtml(m,i===c.msgs.length-1)).join("")+'</div>';
   feed.scrollTop=feed.scrollHeight;renderList();
 }
 function col(){let c=feed.querySelector(".col");if(!c){feed.innerHTML='<div class="col"></div>';c=feed.firstChild}return c}
@@ -503,7 +592,7 @@ async function ask(q){
   try{
     const hist=chat.msgs.slice(-3).map(e=>({q:e.q,a:String(e.a).slice(0,600)}));
     const h={"Content-Type":"application/json"};if(token)h.Authorization="Bearer "+token;
-    const r=await fetch(API+"/ask-peat",{method:"POST",headers:h,body:JSON.stringify({question:q,history:hist,stream:true}),signal:ctrl.signal});
+    const r=await fetch(API+"/ask-peat",{method:"POST",headers:h,body:JSON.stringify({question:q,history:hist,stream:true,mode:ansMode}),signal:ctrl.signal});
     if(!r.ok){let em="";try{em=(await r.json()).error||""}catch(x){}const er=new Error("HTTP "+r.status);er.userMsg=em;throw er}
     let full="",srcs=[],evErr="";
     if(r.body&&(r.headers.get("Content-Type")||"").includes("ndjson")){
@@ -512,7 +601,7 @@ async function ask(q){
       const paint=()=>{
         if(!streamEl){clearInterval(t3);wait.remove();streamEl=document.createElement("div");streamEl.className="a";art.appendChild(streamEl)}
         const near=feed.scrollHeight-feed.scrollTop-feed.clientHeight<180;
-        streamEl.innerHTML=fmt(full)+'<span class="caret"></span>';
+        streamEl.innerHTML=fmt(splitFU(full).a)+'<span class="caret"></span>';
         if(near)feed.scrollTop=feed.scrollHeight;
       };
       for(;;){
@@ -534,11 +623,12 @@ async function ask(q){
     }else{
       const d=await r.json();full=d.answer_tr||"";srcs=d.sources||[];
     }
-    const m={id:Date.now(),q:q,a:full||"Boş yanıt geldi, soruyu farklı yazmayı dene.",sources:srcs,ts:Date.now()};
+    const sp=splitFU(full);
+    const m={id:Date.now(),q:q,a:sp.a||"Boş yanıt geldi, soruyu farklı yazmayı dene.",sources:srcs,ts:Date.now(),f:sp.f};
     chat.msgs.push(m);chat.ts=Date.now();
     if(isNew)chats.push(chat);
     save();pushChat(chat);
-    if(art.isConnected){art.outerHTML=entryHtml(m);current=chat.id;ttl.textContent=chat.title;c.lastElementChild.scrollIntoView({block:"nearest"})}
+    if(art.isConnected){c.querySelectorAll(".fu,[data-act=regen]").forEach(x=>x.remove());art.outerHTML=entryHtml(m,true);current=chat.id;ttl.textContent=chat.title;c.lastElementChild.scrollIntoView({block:"nearest"})}
     renderList();
     if(chat.msgs.length===1)aiTitle(chat,m);
   }catch(err){
@@ -559,7 +649,26 @@ async function ask(q){
 form.addEventListener("submit",ev=>{ev.preventDefault();const v=box.value.trim();if(!v)return;box.value="";box.style.height="auto";ask(v)});
 box.addEventListener("keydown",ev=>{if(ev.key==="Enter"&&!ev.shiftKey){ev.preventDefault();form.requestSubmit()}});
 box.addEventListener("input",()=>{box.style.height="auto";box.style.height=Math.min(box.scrollHeight,140)+"px"});
-feed.addEventListener("click",ev=>{const c=ev.target.closest(".chip");if(c)ask(c.textContent)});
+feed.addEventListener("click",ev=>{
+  const c=ev.target.closest(".chip");if(c){ask(c.textContent);return}
+  const f=ev.target.closest(".fuq");if(f){ask(f.textContent);return}
+  const b=ev.target.closest("[data-act]");if(!b)return;
+  const art=b.closest(".entry"),ch=cur();if(!art||!ch)return;
+  const m=ch.msgs.find(x=>String(x.id)===art.dataset.mid);if(!m)return;
+  const text="Soru: "+m.q+"\n\n"+String(m.a).replace(/\*\*/g,"")+"\n\n— PeatAI · https://cb-ux29.github.io/peatai/";
+  if(b.dataset.act==="copy")copyText(text,b);
+  else if(b.dataset.act==="share"){
+    if(navigator.share)navigator.share({title:"PeatAI",text}).catch(()=>{});
+    else window.open("https://wa.me/?text="+encodeURIComponent(text.slice(0,3500)),"_blank","noopener");
+  }else if(b.dataset.act==="regen"){
+    if(busy||ch.msgs[ch.msgs.length-1]!==m)return;
+    ch.msgs.pop();save();pushChat(ch);art.remove();ask(m.q);
+  }
+});
+async function copyText(t,btn){
+  try{await navigator.clipboard.writeText(t)}catch(e){const x=document.createElement("textarea");x.value=t;document.body.appendChild(x);x.select();try{document.execCommand("copy")}catch(_){}x.remove()}
+  if(btn){const o=btn.textContent;btn.textContent="Kopyalandı ✓";setTimeout(()=>btn.textContent=o,1500)}
+}
 search.addEventListener("input",renderList);
 list.addEventListener("click",ev=>{
   const d=ev.target.closest("[data-del]");
@@ -581,6 +690,91 @@ $("export").onclick=()=>{
   const t=chats.slice().sort((a,b)=>a.ts-b.ts).map(c=>"=== "+c.title+" ===\n\n"+c.msgs.map(e=>"Soru: "+e.q+"\n\nCevap: "+e.a+"\n\nKaynaklar: "+((e.sources||[]).map(s=>s.title+" ("+s.url+")").join("; ")||"yok")+"\nTarih: "+when(e.ts)).join("\n\n---\n\n")).join("\n\n##########\n\n");
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"text/plain;charset=utf-8"}));a.download="peatai-sohbetler.txt";a.click();
 };
+
+// ---------- Tema ----------
+const themeBtn=$("theme");
+function paintTheme(){const d=document.documentElement.dataset.theme==="dark";themeBtn.textContent=d?"☀":"☾";document.querySelector('meta[name="theme-color"]').content=d?"#130D09":"#211812"}
+themeBtn.onclick=()=>{const t=document.documentElement.dataset.theme==="dark"?"light":"dark";document.documentElement.dataset.theme=t;try{localStorage.setItem("peatai_theme",t)}catch(e){}paintTheme()};
+paintTheme();
+
+// ---------- Cevap uzunluğu ----------
+let ansMode=(()=>{try{return localStorage.getItem("peatai_mode")||"detayli"}catch(e){return"detayli"}})();
+function paintMode(){document.querySelectorAll(".seg button").forEach(b=>b.classList.toggle("on",b.dataset.mode===ansMode))}
+document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{ansMode=b.dataset.mode;try{localStorage.setItem("peatai_mode",ansMode)}catch(e){}paintMode()});
+paintMode();
+
+// ---------- Günlük takip ----------
+const TRACK_ID="takip",TKEY="peatai_track_v1";
+let track=(()=>{try{const v=JSON.parse(localStorage.getItem(TKEY));if(v&&Array.isArray(v.items))return v}catch(e){}return{ts:0,items:[]}})();
+function saveTrack(push){try{localStorage.setItem(TKEY,JSON.stringify(track))}catch(e){}if(push)pushTrack()}
+function pushTrack(){if(token&&track.ts)api("/chats/sync",{chats:[{id:TRACK_ID,title:"Günlük takip",updated_at:track.ts,data:JSON.stringify(track.items)}]}).catch(()=>{})}
+function mergeTrack(r){
+  if(!r){if(track.items.length)pushTrack();return}
+  let arr=[];try{arr=JSON.parse(r.data)}catch(e){}
+  if(!Array.isArray(arr))arr=[];
+  if(r.updated_at>track.ts){track={ts:r.updated_at,items:arr};saveTrack(false);if(trackModal.classList.contains("on"))renderTrack()}
+  else if(track.ts>r.updated_at)pushTrack();
+}
+const trackModal=$("trackModal"),tErr=$("tErr");
+const today=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)};
+const dfmt=d=>{const [y,m,g]=String(d).split("-");return g+"."+m};
+const ZO={"Sabah":0,"Öğle":1,"Akşam":2};
+function renderTrack(){
+  const it=track.items.slice().sort((a,b)=>(b.d+ZO[b.z]).localeCompare(a.d+ZO[a.z]));
+  const wk=it.filter(x=>x.d>=new Date(Date.now()-7*864e5).toISOString().slice(0,10));
+  const avg=k=>{const v=wk.map(x=>Number(x[k])).filter(Number.isFinite);return v.length?(v.reduce((a,b)=>a+b,0)/v.length):null};
+  const ap=avg("p"),at=avg("t");
+  $("tStat").innerHTML='<div><b>'+(ap?Math.round(ap):"–")+'</b><span>7 gün ort. nabız</span></div><div><b>'+(at?at.toFixed(1)+" °C":"–")+'</b><span>7 gün ort. ısı</span></div><div><b>'+it.length+'</b><span>kayıt</span></div>';
+  $("tTab").innerHTML=it.length?'<tr><th>Tarih</th><th>Zaman</th><th>Nabız</th><th>Isı</th><th>Yediklerim / not</th><th></th></tr>'+it.map(x=>'<tr><td>'+esc(dfmt(x.d))+'</td><td>'+esc(x.z)+'</td><td>'+esc(x.p||"–")+'</td><td>'+esc(x.t||"–")+'</td><td>'+esc([x.y,x.n].filter(Boolean).join(" · "))+'</td><td class="x"><button type="button" data-tid="'+esc(x.id)+'" aria-label="Kaydı sil">×</button></td></tr>').join(""):'<tr><td class="none">Henüz kayıt yok. İlk ölçümünü yukarıdan ekle.</td></tr>';
+  $("tTab").querySelectorAll("[data-tid]").forEach(b=>b.onclick=()=>{if(!confirm("Bu kayıt silinsin mi?"))return;track.items=track.items.filter(x=>String(x.id)!==b.dataset.tid);track.ts=Date.now();saveTrack(true);renderTrack()});
+}
+function openTrack(){closeSide();tErr.textContent="";$("t_d").value=today();const h=new Date().getHours();$("t_z").value=h<11?"Sabah":h<17?"Öğle":"Akşam";renderTrack();trackModal.classList.add("on")}
+$("btnTrack").onclick=openTrack;
+$("tClose").onclick=()=>trackModal.classList.remove("on");
+trackModal.addEventListener("click",ev=>{if(ev.target===trackModal)trackModal.classList.remove("on")});
+$("trackForm").onsubmit=ev=>{
+  ev.preventDefault();tErr.textContent="";
+  const p=$("t_p").value.trim(),t=$("t_t").value.trim().replace(",","."),y=$("t_y").value.trim(),n=$("t_n").value.trim();
+  if(!p&&!t&&!y&&!n){tErr.textContent="En az bir alanı doldur.";return}
+  if(p&&!(Number(p)>=30&&Number(p)<=200)){tErr.textContent="Nabız 30-200 arasında olmalı.";return}
+  if(t&&!(Number(t)>=34&&Number(t)<=42)){tErr.textContent="Isı 34-42 °C arasında olmalı.";return}
+  track.items.push({id:Date.now(),d:$("t_d").value||today(),z:$("t_z").value,p:p?Number(p):"",t:t?Number(t):"",y,n});
+  if(track.items.length>400)track.items=track.items.slice(-400);
+  track.ts=Date.now();saveTrack(true);
+  ["t_p","t_t","t_y","t_n"].forEach(i=>$(i).value="");renderTrack();
+};
+$("tAsk").onclick=()=>{
+  const it=track.items.slice().sort((a,b)=>(a.d+ZO[a.z]).localeCompare(b.d+ZO[b.z])).slice(-14);
+  if(!it.length){tErr.textContent="Önce birkaç kayıt ekle.";return}
+  let txt="Günlük takip verilerim (nabız, vücut ısısı, beslenme):\n"+it.map(x=>dfmt(x.d)+" "+x.z+": "+[x.p?"nabız "+x.p:"",x.t?"ısı "+x.t+" °C":"",x.y?"yedim: "+String(x.y).slice(0,70):"",x.n?"not: "+String(x.n).slice(0,50):""].filter(Boolean).join(", ")).join("\n");
+  txt=txt.slice(0,1650)+"\n\nBu verileri Ray Peat'in bakışıyla yorumla: metabolizmam ve tiroid işlevim hakkında ne gösteriyor, beslenmemde ve alışkanlıklarımda neyi değiştirmeliyim?";
+  trackModal.classList.remove("on");showEmpty();ask(txt);
+};
+
+// ---------- Besin sorgula ----------
+const foodModal=$("foodModal"),foodErr=$("foodErr"),foodRes=$("foodRes");
+const KLABEL={"uygun":"Uygun","ölçülü":"Ölçülü","kaçın":"Kaçın","bilinmiyor":"Emin değilim"};
+$("btnFood").onclick=()=>{closeSide();foodErr.textContent="";foodModal.classList.add("on");$("foodIn").focus()};
+$("foodClose").onclick=()=>foodModal.classList.remove("on");
+foodModal.addEventListener("click",ev=>{if(ev.target===foodModal)foodModal.classList.remove("on")});
+$("foodForm").onsubmit=async ev=>{
+  ev.preventDefault();const f=$("foodIn").value.trim();if(!f){foodErr.textContent="Bir besin adı yaz.";return}
+  const btn=ev.target.querySelector("button");btn.disabled=true;btn.textContent="…";foodErr.textContent="";
+  try{
+    const r=await fetch(API+"/food",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({food:f})});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok)throw Object.assign(new Error("x"),{userMsg:d.error});
+    const k=KLABEL[d.karar]?d.karar:"bilinmiyor";
+    const el=document.createElement("div");el.className="fres";
+    el.innerHTML='<h4>'+esc(d.food||f)+' <span class="badge b-'+k+'">'+KLABEL[k]+'</span></h4>'+(d.neden?'<p>'+esc(d.neden)+'</p>':'')+(d.yerine?'<p><b>Yerine:</b> '+esc(d.yerine)+'</p>':'')+'<button class="link" type="button">Detaylı sor →</button>';
+    el.querySelector(".link").onclick=()=>{foodModal.classList.remove("on");showEmpty();ask("Ray Peat'e göre "+(d.food||f)+" beslenmede nasıl değerlendirilir, neden?")};
+    foodRes.prepend(el);$("foodIn").value="";
+    while(foodRes.children.length>5)foodRes.lastElementChild.remove();
+  }catch(e){foodErr.textContent=e.userMsg||"Sorgulanamadı, biraz sonra tekrar dene."}
+  finally{btn.disabled=false;btn.textContent="Sorgula"}
+};
+document.addEventListener("keydown",ev=>{if(ev.key==="Escape"){trackModal.classList.remove("on");foodModal.classList.remove("on")}});
+
 renderList();
 if(chats.length)showChat(chats.slice().sort((a,b)=>b.ts-a.ts)[0]);else showEmpty();
 drawAcct();
