@@ -72,6 +72,9 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
 .authbtn:hover{background:#4A3C30}
 .authbtn.primary{background:var(--moss);color:#fff;border-color:var(--moss)}
 .tip{margin-top:14px;padding:10px 14px;border-left:3px solid var(--moss);background:rgba(255,255,255,.78);border-radius:8px;font-family:Georgia,serif;font-size:.98rem;line-height:1.55;color:var(--ink);max-width:560px;animation:tipin .5s ease}
+.caret{display:inline-block;width:.45em;height:1.05em;background:var(--moss);margin-left:2px;vertical-align:-3px;animation:caretb 1s steps(2,start) infinite}
+@keyframes caretb{to{visibility:hidden}}
+@media (prefers-reduced-motion:reduce){.caret{animation:none}}
 .tipk{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:.74rem;color:var(--muted);margin-bottom:3px}
 @keyframes tipin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.tip{animation:none}}
@@ -445,13 +448,42 @@ async function ask(q){
   showTip();const t3=setInterval(showTip,7000);
   const t1=setTimeout(()=>{wait.querySelector(".hint").textContent="Yoğunluk olabilir, cevap biraz daha uzun sürebilir."},8000);
   const ctrl=new AbortController(),t2=setTimeout(()=>ctrl.abort(),120000);
+  let streamEl=null;
   try{
     const hist=chat.msgs.slice(-3).map(e=>({q:e.q,a:String(e.a).slice(0,600)}));
     const h={"Content-Type":"application/json"};if(token)h.Authorization="Bearer "+token;
-    const r=await fetch(API+"/ask-peat",{method:"POST",headers:h,body:JSON.stringify({question:q,history:hist}),signal:ctrl.signal});
+    const r=await fetch(API+"/ask-peat",{method:"POST",headers:h,body:JSON.stringify({question:q,history:hist,stream:true}),signal:ctrl.signal});
     if(!r.ok){let em="";try{em=(await r.json()).error||""}catch(x){}const er=new Error("HTTP "+r.status);er.userMsg=em;throw er}
-    const d=await r.json();
-    const m={id:Date.now(),q:q,a:d.answer_tr||"Boş yanıt geldi, soruyu farklı yazmayı dene.",sources:d.sources||[],ts:Date.now()};
+    let full="",srcs=[],evErr="";
+    if(r.body&&(r.headers.get("Content-Type")||"").includes("ndjson")){
+      // Akışlı cevap: metin yazıldıkça kartta görünür
+      const reader=r.body.getReader(),dec=new TextDecoder();let buf="";
+      const paint=()=>{
+        if(!streamEl){clearInterval(t3);wait.remove();streamEl=document.createElement("div");streamEl.className="a";art.appendChild(streamEl)}
+        const near=feed.scrollHeight-feed.scrollTop-feed.clientHeight<180;
+        streamEl.innerHTML=fmt(full)+'<span class="caret"></span>';
+        if(near)feed.scrollTop=feed.scrollHeight;
+      };
+      for(;;){
+        const {value,done}=await reader.read();
+        if(done)break;
+        buf+=dec.decode(value,{stream:true});
+        let i;
+        while((i=buf.indexOf("\n"))>=0){
+          const line=buf.slice(0,i).trim();buf=buf.slice(i+1);
+          if(!line)continue;
+          let ev;try{ev=JSON.parse(line)}catch(x){continue}
+          if(ev.t==="sources"){srcs=ev.sources||[];const hn=wait.querySelector(".hint");if(hn&&!streamEl)hn.textContent="Kaynaklar bulundu, cevap yazılıyor…"}
+          else if(ev.t==="delta"){full+=ev.text;paint()}
+          else if(ev.t==="reset"){full="";paint()}
+          else if(ev.t==="error")evErr=ev.error||"";
+        }
+      }
+      if(evErr){const er=new Error("stream");er.userMsg=evErr;throw er}
+    }else{
+      const d=await r.json();full=d.answer_tr||"";srcs=d.sources||[];
+    }
+    const m={id:Date.now(),q:q,a:full||"Boş yanıt geldi, soruyu farklı yazmayı dene.",sources:srcs,ts:Date.now()};
     chat.msgs.push(m);chat.ts=Date.now();
     if(isNew)chats.push(chat);
     save();pushChat(chat);
@@ -459,7 +491,7 @@ async function ask(q){
     renderList();
     if(chat.msgs.length===1)aiTitle(chat,m);
   }catch(err){
-    wait.remove();
+    wait.remove();if(streamEl)streamEl.remove();
     let msg="Cevap alınamadı. İnternet bağlantını kontrol edip tekrar dene.";
     if(err.name==="AbortError")msg="Sunucu zamanında yanıt vermedi. Bir dakika sonra tekrar dene.";
     else if(String(err.message).includes("HTTP 5"))msg="Sunucu şu an yanıt veremiyor. Biraz sonra tekrar dene.";
