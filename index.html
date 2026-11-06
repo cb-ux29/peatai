@@ -6,7 +6,7 @@
 <title>PeatAI: Ray Peat Soru-Cevap</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#211812">
-<script>try{document.documentElement.dataset.theme=localStorage.getItem("peatai_theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}catch(e){}</script>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("peatai_theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}catch(e){}try{var nf=localStorage.getItem("peatai_nf")||"auto",nh=new Date().getHours();document.documentElement.dataset.nf=(nf==="on"||(nf==="auto"&&(nh>=19||nh<7)))?"on":"off"}catch(e){}</script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23F6C04A%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23D9661C%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2216%22%20fill%3D%22%232A1E15%22/%3E%3Cpath%20d%3D%22M32%207v6M32%2051v6M7%2032h6M51%2032h6M14.3%2014.3l4.2%204.2M45.5%2045.5l4.2%204.2M14.3%2049.7l4.2-4.2M45.5%2018.5l4.2-4.2%22%20stroke%3D%22%23F2B33D%22%20stroke-width%3D%223.4%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2214.5%22%20fill%3D%22url%28%23g%29%22/%3E%3Ccircle%20cx%3D%2227%22%20cy%3D%2227%22%20r%3D%224.5%22%20fill%3D%22%23FFE3A3%22%20opacity%3D%22.55%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -177,6 +177,11 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
 .b-uygun{background:#3F7A4F}.b-ölçülü{background:#B07A12}.b-kaçın{background:#A12C2C}.b-bilinmiyor{background:#777}
 .fres p{margin:0 0 6px;font-size:.9rem}
 .fres .link{padding:0}
+/* Akşam filtresi: ekranın üstüne turuncu bir katman "çarpılarak" mavi ve yeşil ışığı azaltır */
+#nightf{position:fixed;inset:0;pointer-events:none;z-index:9999;background:#FF6A00;mix-blend-mode:multiply;opacity:0;transition:opacity 1.2s}
+:root[data-nf="on"] #nightf{opacity:.55}
+.tool.wide{grid-column:1/-1;font-weight:500}
+.tool.wide b{font-weight:700}
 @media (max-width:760px){
   .app{grid-template-columns:1fr;grid-template-rows:auto 1fr}
   aside{position:fixed;inset:0 auto 0 0;width:86%;max-width:320px;transform:translateX(-100%);transition:transform .2s;z-index:6}
@@ -192,12 +197,13 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
 </style>
 </head>
 <body>
+<div id="nightf" aria-hidden="true"></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><linearGradient id="lgSun" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F6C04A"/><stop offset="1" stop-color="#D9661C"/></linearGradient><symbol id="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#2A1E15"/><rect x="1" y="1" width="62" height="62" rx="15" fill="none" stroke="#4A3828" stroke-width="2"/><path d="M32 7v6M32 51v6M7 32h6M51 32h6M14.3 14.3l4.2 4.2M45.5 45.5l4.2 4.2M14.3 49.7l4.2-4.2M45.5 18.5l4.2-4.2" stroke="#F2B33D" stroke-width="3.4" stroke-linecap="round"/><circle cx="32" cy="32" r="14.5" fill="url(#lgSun)"/><circle cx="27" cy="27" r="4.5" fill="#FFE3A3" opacity=".55"/></symbol></defs></svg>
 <div class="app">
   <aside id="side">
     <div class="brandrow"><svg class="logo" width="38" height="38" aria-hidden="true"><use href="#logo"/></svg><div><div class="brand">PeatAI</div><div class="sub">Ray Peat'in bakışıyla</div></div><button class="themebtn" id="theme" type="button" aria-label="Koyu / açık tema">☾</button></div>
     <button class="new" id="new" type="button"><span class="plus" aria-hidden="true">+</span>Yeni sohbet</button>
-    <div class="tools"><button class="tool" id="btnTrack" type="button">Günlük takip</button><button class="tool" id="btnFood" type="button">Besin sorgula</button></div>
+    <div class="tools"><button class="tool" id="btnTrack" type="button">Günlük takip</button><button class="tool" id="btnFood" type="button">Besin sorgula</button><button class="tool wide" id="btnNF" type="button" title="Akşamları ekrandaki mavi ışığı azaltır"></button></div>
     <div class="label">Sohbetler</div>
     <input id="search" type="search" placeholder="Sohbetlerde ara…" aria-label="Sohbetlerde ara">
     <ul id="list"></ul>
@@ -696,6 +702,17 @@ const themeBtn=$("theme");
 function paintTheme(){const d=document.documentElement.dataset.theme==="dark";themeBtn.textContent=d?"☀":"☾";document.querySelector('meta[name="theme-color"]').content=d?"#130D09":"#211812"}
 themeBtn.onclick=()=>{const t=document.documentElement.dataset.theme==="dark"?"light":"dark";document.documentElement.dataset.theme=t;try{localStorage.setItem("peatai_theme",t)}catch(e){}paintTheme()};
 paintTheme();
+
+// ---------- Akşam filtresi (mavi ışık) ----------
+const NF_LABEL={auto:"Otomatik",on:"Açık",off:"Kapalı"};
+let nfMode=(()=>{try{return localStorage.getItem("peatai_nf")||"auto"}catch(e){return"auto"}})();
+function applyNF(){
+  const h=new Date().getHours(),on=nfMode==="on"||(nfMode==="auto"&&(h>=19||h<7));
+  document.documentElement.dataset.nf=on?"on":"off";
+  $("btnNF").innerHTML="Akşam filtresi: <b>"+NF_LABEL[nfMode]+"</b>"+(nfMode==="auto"?(on?" · şu an açık":" · 19:00'da açılır"):"");
+}
+$("btnNF").onclick=()=>{nfMode={auto:"on",on:"off",off:"auto"}[nfMode];try{localStorage.setItem("peatai_nf",nfMode)}catch(e){}applyNF()};
+applyNF();setInterval(applyNF,60000);
 
 // ---------- Cevap uzunluğu ----------
 let ansMode=(()=>{try{return localStorage.getItem("peatai_mode")||"detayli"}catch(e){return"detayli"}})();
