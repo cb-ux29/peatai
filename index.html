@@ -189,6 +189,24 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
 .nfrow button{flex:1;padding:8px 4px;border:1px solid var(--line);background:none;border-radius:9px;font-size:.84rem;color:var(--ink)}
 .nfrow button.on{background:var(--moss);border-color:var(--moss);color:#fff;font-weight:600}
 #nfTimes.off{opacity:.45;pointer-events:none}
+.botrow{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.gear{display:flex;align-items:center;gap:6px;background:var(--soil2);border:1px solid var(--soil3);color:var(--sand);border-radius:10px;padding:7px 12px;font-size:.84rem;font-weight:600}
+.gear:hover{background:var(--soil3)}
+.sec{font-size:.74rem;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:16px 0 8px}
+.scgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.scn{border:2px solid var(--line);border-radius:12px;padding:0;overflow:hidden;background:var(--card);color:var(--ink);text-align:left}
+.scn i{display:block;height:58px;background-size:cover;background-position:center bottom}
+.scn span{display:block;font-size:.76rem;font-weight:600;padding:5px 7px}
+.scn.on{border-color:var(--moss);box-shadow:0 0 0 2px var(--moss)}
+.setbtns{display:flex;gap:8px;flex-wrap:wrap}
+.setbtns button{flex:1;min-width:120px;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--input);color:var(--ink);font-weight:600;font-size:.86rem}
+.setbtns button.dang{color:var(--err);border-color:var(--err)}
+:root[data-scene] .meta,:root[data-scene] .fuk,:root[data-scene] .hint{display:inline-block;background:var(--soft);padding:2px 9px;border-radius:999px}
+:root[data-scene] .fu{align-items:flex-start}
+:root[data-scene] #feed{background:transparent}
+:root[data-scene] .comp{background:transparent}
+:root[data-scene] .disclink{background:var(--soft);border-radius:999px}
+:root[data-scene] .empty{background:var(--soft);border-radius:22px;padding:26px 22px;box-shadow:var(--shadow);max-width:760px}
 @media (max-width:760px){
   .app{grid-template-columns:1fr;grid-template-rows:auto 1fr}
   aside{position:fixed;inset:0 auto 0 0;width:86%;max-width:320px;transform:translateX(-100%);transition:transform .2s;z-index:6}
@@ -215,11 +233,7 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
     <input id="search" type="search" placeholder="Sohbetlerde ara…" aria-label="Sohbetlerde ara">
     <ul id="list"></ul>
     <div class="acct" id="acct"></div>
-    <div class="foot">
-      <button id="export" type="button">Dışa aktar</button>
-      <button id="clear" type="button">Hepsini sil</button>
-    </div>
-    <button class="notesbtn" id="btnNotes" type="button">Güvenlik notları</button>
+    <div class="botrow"><button class="notesbtn" id="btnNotes" type="button">Güvenlik notları</button><button class="gear" id="btnSettings" type="button" aria-label="Ayarlar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Ayarlar</button></div>
   </aside>
   <div id="scrim"></div>
 
@@ -279,6 +293,18 @@ textarea:focus-visible,button:focus-visible,#search:focus-visible,a:focus-visibl
     <p class="ferr" id="foodErr"></p>
     <div id="foodRes"></div>
     <div class="ctl"><button type="button" id="foodClose">Kapat</button></div>
+  </div>
+</div>
+
+<div class="modal" id="setModal">
+  <div class="card wide">
+    <h3>Ayarlar</h3>
+    <div class="sec">Tema</div>
+    <div class="scgrid" id="scGrid"></div>
+    <div class="sec">Sohbetler</div>
+    <div class="setbtns"><button id="export" type="button">Dışa aktar</button><button class="dang" id="clear" type="button">Hepsini sil</button></div>
+    <div id="setAcctWrap"><div class="sec">Hesap</div><div class="setbtns" id="setAcct"></div></div>
+    <div class="ctl"><button type="button" id="setNotes">Güvenlik notları</button><button class="fill" type="button" id="setClose">Kapat</button></div>
   </div>
 </div>
 
@@ -377,16 +403,19 @@ async function delAccount(){
 function drawAcct(){
   const a=$("acct");
   if(token){
-    a.innerHTML='<div class="aw">'+esc(name)+'</div><div class="foot"><button id="logout" type="button">Çıkış yap</button><button id="delacc" type="button">Hesabımı sil</button></div><button class="authbtn" id="btnMem" type="button">Hafızam (AI neler biliyor)</button>';
-    $("logout").onclick=()=>logout(true);
-    $("delacc").onclick=delAccount;
+    a.innerHTML='<div class="aw">'+esc(name)+'</div><button class="authbtn" id="btnMem" type="button">Hafızam (AI neler biliyor)</button>';
     $("btnMem").onclick=openMem;
+    $("setAcctWrap").style.display="";
+    $("setAcct").innerHTML='<button id="logout" type="button">Çıkış yap</button><button class="dang" id="delacc" type="button">Hesabımı sil</button>';
+    $("logout").onclick=()=>{$("setModal").classList.remove("on");logout(true)};
+    $("delacc").onclick=delAccount;
   }else{
     a.innerHTML='<div class="aw">Sohbetlerine her yerden ulaşmak için giriş yap.</div>'+
       '<button class="authbtn primary" id="btnLogin" type="button">Giriş yap</button>'+
       '<button class="authbtn" id="btnSignup" type="button">Üye ol</button>';
     $("btnLogin").onclick=()=>openModal("login");
     $("btnSignup").onclick=()=>openModal("signup");
+    $("setAcctWrap").style.display="none";$("setAcct").innerHTML="";
   }
 }
 
@@ -722,6 +751,122 @@ const themeBtn=$("theme");
 function paintTheme(){const d=document.documentElement.dataset.theme==="dark";themeBtn.textContent=d?"☀":"☾";document.querySelector('meta[name="theme-color"]').content=d?"#130D09":"#211812"}
 themeBtn.onclick=()=>{const t=document.documentElement.dataset.theme==="dark"?"light":"dark";document.documentElement.dataset.theme=t;try{localStorage.setItem("peatai_theme",t)}catch(e){}paintTheme()};
 paintTheme();
+
+// ---------- Temalar (arka plan sahneleri) ----------
+const SCENES=(()=>{
+  const rnd=s=>()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+  const svg=(body,defs="")=>"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 1000' preserveAspectRatio='xMidYMax slice'><defs>"+defs+"</defs>"+body+"</svg>";
+  const an=(attr,vals,dur)=>"<animate attributeName='"+attr+"' values='"+vals+"' dur='"+dur+"' repeatCount='indefinite'/>";
+  const S={};
+  S.fire={n:"Şömine",bg:"#1c0f0a",f:()=>{
+    const r=rnd(3);let em="";
+    for(let i=0;i<14;i++){const x=700+r()*200,d=(3+r()*4).toFixed(1);em+="<circle cx='"+x.toFixed(0)+"' cy='900' r='"+(1.5+r()*2).toFixed(1)+"' fill='#ffb347'>"+an("cy","900;520",d+"s")+an("opacity","1;0",d+"s")+"</circle>"}
+    const fl=(x,s,d,c1,c2,c3)=>"<g transform='translate("+x+",935) scale("+s+")'><g>"+"<animateTransform attributeName='transform' type='scale' values='1 1;1.06 .9;.94 1.1;1 1' dur='"+d+"s' repeatCount='indefinite'/>"+
+      "<path d='M0 0C-48-40-40-120 0-190C40-120 48-40 0 0Z' fill='"+c1+"'/><path d='M0 0C-32-30-26-85 0-135C26-85 32-30 0 0Z' fill='"+c2+"'/><path d='M0 0C-18-18-14-50 0-80C14-50 18-18 0 0Z' fill='"+c3+"'/></g></g>";
+    return svg("<rect width='1600' height='1000' fill='url(#br)'/><rect width='1600' height='1000' fill='url(#vig)'/>"+
+      "<ellipse cx='800' cy='900' rx='760' ry='520' fill='url(#glow)'>"+an("opacity",".75;1;.82;.96;.75","2.6s")+"</ellipse>"+
+      "<rect x='470' y='520' width='660' height='480' fill='#2e2520'/><rect x='430' y='488' width='740' height='42' rx='6' fill='#4b3a2e'/>"+
+      "<path d='M580 1000V660Q800 540 1020 660V1000Z' fill='#0f0705'/>"+
+      fl(735,.8,1.1,"#e8541a","#ff9a2e","#ffe7a0")+fl(865,.85,.95,"#e8541a","#ff9a2e","#ffe7a0")+fl(800,1.1,1.3,"#ff6a1a","#ffb02e","#fff3c4")+em+
+      "<rect x='650' y='935' width='300' height='26' rx='13' fill='#4a2a18'/><rect x='690' y='955' width='240' height='24' rx='12' fill='#3a2012'/>",
+      "<pattern id='br' width='120' height='60' patternUnits='userSpaceOnUse'><rect width='120' height='60' fill='#2a140d'/><rect x='2' y='2' width='116' height='26' rx='3' fill='#4d2618'/><rect x='-58' y='32' width='116' height='26' rx='3' fill='#45221a'/><rect x='62' y='32' width='116' height='26' rx='3' fill='#4d2618'/></pattern>"+
+      "<radialGradient id='glow'><stop offset='0' stop-color='#ff9a3c' stop-opacity='.65'/><stop offset='1' stop-color='#ff6a1a' stop-opacity='0'/></radialGradient>"+
+      "<linearGradient id='vig' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#000' stop-opacity='.55'/><stop offset='.6' stop-color='#000' stop-opacity='0'/></linearGradient>")}};
+  S.sun={n:"Parlak güneş",bg:"#fff4cf",f:()=>{
+    let rays="";for(let i=0;i<18;i++){const a=i*20;rays+="<path d='M0 -150L18 -560L-18 -560Z' fill='#ffd75e' opacity='.5' transform='rotate("+a+")'/>"}
+    return svg("<rect width='1600' height='1000' fill='url(#sky)'/><g transform='translate(1220,230)'><g>"+rays+"<animateTransform attributeName='transform' type='rotate' from='0' to='360' dur='160s' repeatCount='indefinite'/></g>"+
+      "<circle r='420' fill='url(#halo)'/><circle r='130' fill='url(#core)'/></g>"+
+      "<path d='M0 860Q300 760 620 840T1250 820T1600 840V1000H0Z' fill='#f2c66a'/><path d='M0 920Q420 850 820 910T1600 900V1000H0Z' fill='#e7ad4c'/>"+
+      "<path d='M300 260q14 -12 28 0q14 -12 28 0M380 200q10 -9 20 0q10 -9 20 0' fill='none' stroke='#b9893a' stroke-width='3' stroke-linecap='round'/>",
+      "<linearGradient id='sky' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#ffe9a8'/><stop offset='1' stop-color='#fff8e3'/></linearGradient>"+
+      "<radialGradient id='halo'><stop offset='0' stop-color='#fff6c2' stop-opacity='.95'/><stop offset='1' stop-color='#fff6c2' stop-opacity='0'/></radialGradient>"+
+      "<radialGradient id='core'><stop offset='0' stop-color='#fff7c9'/><stop offset='.6' stop-color='#ffd447'/><stop offset='1' stop-color='#ffb627'/></radialGradient>")}};
+  S.lab={n:"Laboratuvar",bg:"#eef3f1",f:()=>{
+    const r=rnd(9);let bub="";
+    for(let i=0;i<10;i++){const x=(380+r()*80).toFixed(0),d=(2+r()*3).toFixed(1);bub+="<circle cx='"+x+"' r='"+(3+r()*5).toFixed(1)+"' fill='#fff' opacity='.8'><animate attributeName='cy' values='840;640' dur='"+d+"s' repeatCount='indefinite'/></circle>"}
+    const hex=(x,y,s)=>{let p="";for(let k=0;k<6;k++){const a=Math.PI/3*k+Math.PI/6;p+=(k?"L":"M")+(x+s*Math.cos(a)).toFixed(1)+" "+(y+s*Math.sin(a)).toFixed(1)}return p+"Z"};
+    return svg("<rect width='1600' height='1000' fill='url(#grid)'/>"+
+      "<path d='"+hex(1150,240,46)+hex(1230,286,46)+hex(1310,240,46)+"M1350 220l40 -24M1190 330l-20 40' fill='none' stroke='#9fbab3' stroke-width='3'/>"+
+      "<text x='1265' y='395' font-family='Arial' font-size='22' fill='#9fbab3' text-anchor='middle'>C21H30O2</text>"+
+      "<rect x='0' y='860' width='1600' height='140' fill='#cbb895'/><rect x='0' y='852' width='1600' height='14' fill='#a68d68'/>"+
+      // erlenmeyer
+      "<path d='M390 600V500h60v100l90 250h-240Z' fill='#ffffffaa' stroke='#7f9b94' stroke-width='4'/><path d='M332 760h176l32 90h-240Z' fill='#f5a742' opacity='.85'/>"+bub+
+      // beaker with milk
+      "<path d='M620 640h150v210h-150Z' fill='#ffffffaa' stroke='#7f9b94' stroke-width='4'/><path d='M624 720h142v126h-142Z' fill='#fffdf5'/><path d='M640 680h40M640 720h30M640 760h40' stroke='#7f9b94' stroke-width='3'/>"+
+      // test tubes
+      "<rect x='880' y='760' width='200' height='16' fill='#8f7556'/>"+[0,1,2,3].map(i=>"<rect x='"+(895+i*48)+"' y='640' width='26' height='200' rx='13' fill='#ffffffaa' stroke='#7f9b94' stroke-width='3'/><rect x='"+(898+i*48)+"' y='"+(740-i*18)+"' width='20' height='"+(96+i*18)+"' rx='10' fill='"+["#f28c28","#ffd447","#e8541a","#f5a742"][i]+"' opacity='.8'/>").join("")+
+      // microscope
+      "<g fill='#556b66'><rect x='1240' y='830' width='170' height='22' rx='6'/><rect x='1300' y='620' width='26' height='210' rx='8'/><rect x='1270' y='600' width='40' height='120' rx='10' transform='rotate(-20 1290 660)'/><rect x='1255' y='760' width='110' height='14' rx='4'/></g>",
+      "<pattern id='grid' width='40' height='40' patternUnits='userSpaceOnUse'><rect width='40' height='40' fill='#eef3f1'/><path d='M40 0H0V40' fill='none' stroke='#d3e2de' stroke-width='1.5'/></pattern>")}};
+  S.grove={n:"Portakal bahçesi",bg:"#f4f2dd",f:()=>{
+    const r=rnd(5);let t="";
+    const tree=(x,y,s,dark)=>{let g="<g transform='translate("+x+","+y+") scale("+s+")'><rect x='-14' y='0' width='28' height='150' rx='8' fill='#7a5230'/>";
+      const cs=[[0,-60,95],[-70,-10,70],[70,-10,70],[-35,-110,70],[40,-105,70]];
+      cs.forEach(c=>g+="<circle cx='"+c[0]+"' cy='"+c[1]+"' r='"+c[2]+"' fill='"+(dark?"#4f8a3a":"#78ab5a")+"'/>");
+      for(let i=0;i<14;i++){g+="<circle cx='"+((r()-.5)*190).toFixed(0)+"' cy='"+(-140+r()*170).toFixed(0)+"' r='11' fill='#f28c28'/>"}
+      return g+"</g>"};
+    [[180,700,.8,0],[520,660,.7,0],[900,690,.75,0],[1280,670,.8,0],[1520,700,.7,0]].forEach(a=>t+=tree(a[0],a[1],a[2],a[3]));
+    [[340,800,1,1],[760,820,1.1,1],[1130,800,1,1]].forEach(a=>t+=tree(a[0],a[1],a[2],a[3]));
+    return svg("<rect width='1600' height='1000' fill='url(#sk)'/><path d='M0 820Q400 760 800 800T1600 790V1000H0Z' fill='#a9cf7a'/>"+t+"<path d='M0 930Q500 890 1000 920T1600 910V1000H0Z' fill='#8fbf5f'/>",
+      "<linearGradient id='sk' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#fff1cf'/><stop offset='1' stop-color='#eef4d8'/></linearGradient>")}};
+  S.sunset={n:"Gün batımı",bg:"#5b3c7a",f:()=>{
+    let w="";for(let i=0;i<12;i++){const y=730+i*22,ww=260-i*14;w+="<rect x='"+(800-ww/2)+"' y='"+y+"' width='"+ww+"' height='5' rx='2.5' fill='#ffcf7a' opacity='.7'>"+an("opacity",".2;.8;.3",(2+i%4)+"s")+"</rect>"}
+    return svg("<rect width='1600' height='1000' fill='url(#ss)'/><circle cx='800' cy='710' r='190' fill='url(#sc)'/><rect x='0' y='710' width='1600' height='290' fill='url(#sea)'/>"+w,
+      "<linearGradient id='ss' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#3e2a63'/><stop offset='.45' stop-color='#c45a7a'/><stop offset='.72' stop-color='#ffa25c'/></linearGradient>"+
+      "<radialGradient id='sc'><stop offset='0' stop-color='#fff1b8'/><stop offset='1' stop-color='#ffb347'/></radialGradient>"+
+      "<linearGradient id='sea' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#6b3f6e'/><stop offset='1' stop-color='#2b1f45'/></linearGradient>")}};
+  S.farm={n:"Süt çiftliği",bg:"#e6f3ff",f:()=>{
+    const cow=(x,y,s,fl)=>"<g transform='translate("+x+","+y+") scale("+(fl?-s:s)+","+s+")'><g fill='#fff' stroke='#3a3a3a' stroke-width='3'><rect x='-6' y='30' width='12' height='46' rx='5'/><rect x='70' y='30' width='12' height='46' rx='5'/><rect x='14' y='34' width='12' height='44' rx='5'/><rect x='52' y='34' width='12' height='44' rx='5'/>"+
+      "<ellipse cx='38' cy='18' rx='62' ry='38'/><ellipse cx='-34' cy='-4' rx='24' ry='20'/></g><path d='M10 0q16 -20 34 -6q-6 22 -26 20zM58 10q14 -6 22 8q-12 14 -24 4z' fill='#3a3a3a'/><ellipse cx='-46' cy='4' rx='12' ry='9' fill='#f3b7b0'/><circle cx='-30' cy='-10' r='3' fill='#222'/><path d='M-26 -22l8 -10M-40 -22l-6 -10' stroke='#3a3a3a' stroke-width='3'/></g>";
+    const cloud=(x,y,s,d)=>"<g transform='translate("+x+","+y+") scale("+s+")'><g fill='#fff'><ellipse cx='0' cy='0' rx='80' ry='34'/><ellipse cx='50' cy='-18' rx='56' ry='34'/><ellipse cx='-46' cy='-10' rx='44' ry='28'/></g><animateTransform attributeName='transform' type='translate' additive='sum' values='0 0;120 0;0 0' dur='"+d+"s' repeatCount='indefinite'/></g>";
+    let fence="";for(let x=0;x<1600;x+=70)fence+="<rect x='"+x+"' y='800' width='12' height='90' fill='#c8a46e'/>";
+    return svg("<rect width='1600' height='1000' fill='url(#fs)'/>"+cloud(300,170,1,60)+cloud(1100,120,1.2,80)+cloud(780,250,.8,70)+
+      "<path d='M0 760Q400 640 800 720T1600 690V1000H0Z' fill='#9ccf6e'/><path d='M0 850Q500 770 1000 830T1600 820V1000H0Z' fill='#83bd57'/>"+fence+"<rect x='0' y='815' width='1600' height='10' fill='#b98f58'/><rect x='0' y='850' width='1600' height='10' fill='#b98f58'/>"+
+      cow(420,880,1,0)+cow(1150,900,1.1,1)+cow(800,760,.6,0),
+      "<linearGradient id='fs' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#bfe0ff'/><stop offset='1' stop-color='#f1f8ff'/></linearGradient>")}};
+  S.library={n:"Kütüphane",bg:"#24170f",f:()=>{
+    const r=rnd(11),cols=["#7a2e22","#2f4a3a","#b07a2a","#3b3a5a","#8a5a3a","#5c1f1f","#6b6a3a","#2a3f52","#a4652f"];let b="";
+    for(let row=0;row<5;row++){const base=180+row*190;let x=0;b+="<rect x='0' y='"+base+"' width='1600' height='18' fill='#5a3a22'/>";
+      while(x<1600){const w=18+r()*20,h=110+r()*50;b+="<rect x='"+x.toFixed(0)+"' y='"+(base-h).toFixed(0)+"' width='"+w.toFixed(0)+"' height='"+h.toFixed(0)+"' fill='"+cols[Math.floor(r()*cols.length)]+"'/><rect x='"+(x+3).toFixed(0)+"' y='"+(base-h+16).toFixed(0)+"' width='"+(w-6).toFixed(0)+"' height='5' fill='#d9b46a' opacity='.6'/>";x+=w+2+(r()<.08?30:0)}}
+    return svg("<rect width='1600' height='1000' fill='#24170f'/>"+b+"<rect width='1600' height='1000' fill='url(#lamp)'/>",
+      "<radialGradient id='lamp' cx='.5' cy='.15' r='.8'><stop offset='0' stop-color='#ffc46b' stop-opacity='.35'/><stop offset='1' stop-color='#000' stop-opacity='.55'/></radialGradient>")}};
+  S.bulb={n:"Akkor ampul",bg:"#150d08",f:()=>svg("<rect width='1600' height='1000' fill='#150d08'/><circle cx='800' cy='420' r='560' fill='url(#bg2)'>"+an("opacity",".75;1;.75","6s")+"</circle>"+
+      "<path d='M800 0V270' stroke='#3a2a1e' stroke-width='6'/><rect x='770' y='262' width='60' height='70' rx='8' fill='#5a4636'/><path d='M772 300h56M772 315h56' stroke='#3b2c20' stroke-width='4'/>"+
+      "<path d='M776 332h48l10 40a78 78 0 1 1 -68 0Z' fill='#ffe9b0' opacity='.35' stroke='#ffe2a0' stroke-width='3'/>"+
+      "<path d='M788 340V400M812 340V400M788 400l6 -12l6 12l6 -12l6 12' fill='none' stroke='#ffd36b' stroke-width='4' stroke-linejoin='round'>"+an("stroke",'#ffd36b;#fff1c4;#ffd36b',"3s")+"</path>",
+      "<radialGradient id='bg2'><stop offset='0' stop-color='#ffcf6b' stop-opacity='.75'/><stop offset='.35' stop-color='#ff9a3c' stop-opacity='.25'/><stop offset='1' stop-color='#000' stop-opacity='0'/></radialGradient>")};
+  S.forest={n:"Oregon ormanı",bg:"#dbe7e1",f:()=>{
+    const r=rnd(21),layers=[["#a9bfb5",640,.55],["#7e9d90",720,.7],["#4f7064",810,.85],["#2c4a3e",900,1]];let g="";
+    const pine=(x,y,s,c)=>"<g transform='translate("+x.toFixed(0)+","+y+") scale("+s.toFixed(2)+")' fill='"+c+"'><rect x='-6' y='-10' width='12' height='40'/><path d='M0 -200L60 -100H-60Z M0 -150L75 -40H-75Z M0 -95L90 10H-90Z'/></g>";
+    layers.forEach((L,i)=>{for(let x=-40;x<1650;x+=60+r()*70)g+=pine(x,L[1]+r()*30,L[2]*(.8+r()*.5),L[0]);if(i<3)g+="<rect x='0' y='"+(L[1]-40)+"' width='1600' height='160' fill='#fff' opacity='.18'><animate attributeName='x' values='-80;80;-80' dur='"+(30+i*10)+"s' repeatCount='indefinite'/></rect>"});
+    return svg("<rect width='1600' height='1000' fill='url(#fo)'/>"+g+"<rect x='0' y='915' width='1600' height='85' fill='#22392f'/>",
+      "<linearGradient id='fo' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#eef4f0'/><stop offset='1' stop-color='#c9dcd3'/></linearGradient>")}};
+  return S;
+})();
+const SCENE_ORDER=["classic","fire","sun","lab","grove","sunset","farm","library","bulb","forest"];
+const sceneCache={};
+function sceneURL(k){if(!sceneCache[k])sceneCache[k]='url("data:image/svg+xml,'+encodeURIComponent(SCENES[k].f())+'")';return sceneCache[k]}
+let scene=(()=>{try{const v=localStorage.getItem("peatai_scene");return SCENE_ORDER.includes(v)?v:"classic"}catch(e){return"classic"}})();
+const mainEl=document.querySelector("main");
+function applyScene(){
+  const st=mainEl.style;
+  if(scene==="classic"){st.backgroundImage="";st.backgroundSize="";st.backgroundColor="";st.backgroundPosition="";document.documentElement.removeAttribute("data-scene")}
+  else{st.backgroundImage=sceneURL(scene);st.backgroundSize="cover";st.backgroundPosition="center bottom";st.backgroundColor=SCENES[scene].bg;document.documentElement.dataset.scene=scene}
+  document.querySelectorAll(".scn").forEach(b=>b.classList.toggle("on",b.dataset.scene===scene));
+}
+
+// ---------- Ayarlar ----------
+const setModal=$("setModal");
+function renderScenes(){
+  $("scGrid").innerHTML=SCENE_ORDER.map(k=>'<button class="scn" type="button" data-scene="'+k+'"><i style="background-image:'+(k==="classic"?'url(bg.svg);background-size:220px;background-color:#F6EFE3':sceneURL(k)+';background-color:'+SCENES[k].bg).replace(/"/g,"&quot;")+'"></i><span>'+(k==="classic"?"Klasik":SCENES[k].n)+'</span></button>').join("");
+  $("scGrid").querySelectorAll(".scn").forEach(b=>b.onclick=()=>{scene=b.dataset.scene;try{localStorage.setItem("peatai_scene",scene)}catch(e){}applyScene()});
+  applyScene();
+}
+$("btnSettings").onclick=()=>{closeSide();renderScenes();setModal.classList.add("on")};
+$("setClose").onclick=()=>setModal.classList.remove("on");
+$("setNotes").onclick=()=>{setModal.classList.remove("on");openNotes()};
+setModal.addEventListener("click",ev=>{if(ev.target===setModal)setModal.classList.remove("on")});
+applyScene();
 
 // ---------- Akşam filtresi (mavi ışık) ----------
 const lget=(k,d)=>{try{return localStorage.getItem(k)||d}catch(e){return d}},lset=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
